@@ -8,10 +8,35 @@ var app = function(app) {
 
 		// make edit page
 		
+		var color = d.colors[0];
+		stage.canvas.style.backgroundColor = color;
+				
 		var edit = p.edit = new createjs.Container();
 		
 		var editTop = p.editTop = makeTop();
 		edit.addChild(editTop);
+		
+		var editBar = p.editNav = new createjs.Container();
+		editBar.setBounds(0,0,400,51);
+		edit.addChild(editBar);
+		var editSub = new zim.Label("CARDS", 20, null, "white");
+		editSub.x = 14;
+		editSub.y = 18;
+		editBar.addChild(editSub);
+		var editButs = p.editButs = new createjs.Container();
+		editButs.selected = 0;
+		var butColor; var but; var lab;
+		for (var i=0; i<6; i++) {
+			lab = new zim.Label(String(i+1), null, null, "#444", "white");
+			but = new zim.Button(49, 49, lab, d.colors[i], "#333", null, 0, 0, -1);
+			but.num = i;
+			editButs.addChildAt(but, i);
+			but.x = i*50;
+		}
+
+		editButs.x = 100;
+		editButs.y = 1;
+		editBar.addChild(editButs);
 				
 		var data = d.data;		 
 		var cols = d.cols; 
@@ -26,18 +51,24 @@ var app = function(app) {
 		editContent.addChild(backing);
 		
 		var squares = p.squares = new createjs.Container();
+		p.squares.color = color;
 		editContent.addChild(squares);
 		squares.x=squares.y=margin;
 		
-		var square; var color;
-		for (var i=0; i<data.length; i++) {
-			square = new zim.Rectangle(size-1,size-1,(data[i])?"black":"yellow");
-			square.data = data[i];
-			squares.addChild(square);
-			square.changed = false;
-			square.x = i%cols*size;
-			square.y = Math.floor(i/cols)*size;
+		p.makeSquares = function(set, index, color) {
+			squares.removeAllChildren();
+			var square; 
+			for (var i=0; i<data.length; i++) {
+				square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
+				square.data = data[i];
+				squares.addChild(square);
+				square.changed = false;
+				square.x = i%cols*size;
+				square.y = Math.floor(i/cols)*size;
+			}
 		}
+		
+		p.makeSquares(0, 0, color);
 		
 		var editNav = new createjs.Container();
 		edit.addChild(editNav);
@@ -52,25 +83,28 @@ var app = function(app) {
 		
 		var regions = [ 
 			{object:editTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
-			{object:editContent, marginTop:5, maxWidth:90, align:"center", valign:"top"},
-			{object:editNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
+			{object:editBar, marginTop:2, maxWidth:100, height:7, align:"right", valign:"middle", backgroundColor:"#000"},
+			{object:editContent, marginTop:2, maxWidth:90, align:"center", valign:"top"},
+			{object:editNav, marginTop:2, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
-		layout.add(new zim.Layout(p.edit, regions, 0, null, true, new createjs.Shape(), stage));
+		layout.add(new zim.Layout(p.edit, regions, 0, null, true, null, stage));
 
 
 		// general functions
 		
-		function makeTop() {
+		function makeTop(backButton) {
+			if (zot(backButton)) backButton = true;
 			var top = new createjs.Container();
-			top.setBounds(0,0,330,50);
-			top.button = new zim.Button(45,50,"","#222", "#444", null, 0, 0, -1);
-			top.addChild(top.button);
-			var triangle = new zim.Triangle(30,30,30,"white");
-			triangle.rotation = -90;
-			triangle.x = 18;
-			triangle.y = 25;
-			triangle.mouseEnabled = false;
-			top.addChild(triangle);
+			top.setBounds(0,0,350,50);
+			if (backButton) {
+				top.button = new zim.Triangle(30,30,30,"#333");
+				top.button.rotation = -90;
+				top.button.x = 19;
+				top.button.y = 25;
+				top.button.cursor = "pointer";
+				top.addChild(top.button);
+				zim.expand(top.button);
+			}
 			var label = zim.Label("Psychic Pixels");
 			top.addChild(label);
 			label.x = 60;

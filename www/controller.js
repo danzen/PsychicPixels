@@ -16,7 +16,7 @@ var app = function(app) {
 		p.squares.on("mousedown", function(e) {
 			square = e.target;
 			currentData = Math.abs(square.data-1);	
-			currentColor = (currentData)?"black":"yellow"
+			currentColor = (currentData)?"black":p.squares.color;
 			square.color = currentColor;
 			square.data = currentData;
 			square.changed = true;
@@ -42,6 +42,24 @@ var app = function(app) {
 				square.changed = false;
 			}
 		});
+		
+		var but; var color;
+		p.editButs.on("click", function(e) {
+			but = e.target;
+			p.editButs.selected = but.num;
+			color = d.colors[but.num];
+			p.squares.color = color
+			stage.canvas.style.backgroundColor = color;
+			p.makeSquares(0, but.num, color);
+			stage.update();	
+		});
+		
+		p.editClear.on("click", function() {
+			// write clear to data
+			p.makeSquares(0, p.editButs.selected, p.squares.color);
+			stage.update();
+		});
+		
 	}
 	return app;
 		
