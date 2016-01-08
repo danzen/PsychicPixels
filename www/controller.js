@@ -20,22 +20,24 @@ var app = function(app) {
 			{page:v.menu,  rect:v.menuDeck, 		call:function() {menuDeck();}},
 			{page:v.menu,  rect:v.menuPrev, 		call:function() {menuArrow(-1);}},
 			{page:v.menu,  rect:v.menuNext, 		call:function() {menuArrow(1);}},
-			{page:v.edit,  rect:v.editTop.button, 	call:function() {goMenu("left");}}
+			{page:v.edit,  rect:v.editNav.right, 	call:function() {goMenu("left");}}
 		]);
 		
 		function menuDeck() {
-			if (v.editTabs.selectedIndex == 0) {
+			if (v.menuTabs.selectedIndex == 0) {
 				zog("play");
-			} else if (v.editTabs.selectedIndex == 1) {
+			} else if (v.menuTabs.selectedIndex == 1) {
 				v.makeSquares(m.currentSet, 0, m.colors[0]); 
 				v.setEditButColors();
 				pages.go(v.edit, "right");
 			} else {
-				zog("delete");				
+				v.menuConfirm.show();	
+				stage.update();		
 			}			
 		}
 		
-		function goMenu(direction) {
+		
+		function goMenu(direction) {		
 			v.makeMenuDeck(m.currentSet);
 			pages.go(v.menu, direction);
 		}
@@ -45,7 +47,6 @@ var app = function(app) {
 			m.currentSet = Math.min(Math.max(m.currentSet, 0), m.data.length-1);
 			zim.shuffle(m.colors);
 			v.makeMenuDeck(m.currentSet);
-			stage.update();
 		}
 
 		function newDeck() {
@@ -53,15 +54,26 @@ var app = function(app) {
 			zim.shuffle(m.colors);
 			v.makeSquares(m.currentSet, 0, m.colors[0]); 
 			v.setEditButColors();
+			v.menuTabs.selectedIndex = 1;
 			pages.go(v.edit, "right");
 		}
 		
 		// events for menu page
 		
-		v.editTabs.on("change", function() {
+		v.menuTabs.on("change", function() {
 			v.handleArrows();
 			v.handleTabs();
-			stage.update();
+			stage.update();			
+		});
+		
+		v.menuConfirmTabs.on("change", function() {
+			if (v.menuConfirmTabs.text == "YES") {
+				m.removeSet(m.currentSet);					
+				if (m.currentSet == 0) v.menuTabs.selectedIndex = 0;	
+				v.makeMenuDeck(m.currentSet);
+			} 
+			v.menuConfirm.hide();	
+			stage.update();			
 		});
 
 		// events for edit page
@@ -129,10 +141,6 @@ var app = function(app) {
 			stage.update();
 		});
 		
-		// done in edit
-		v.editNav.right.on("click", function() {
-			zog(JSON.stringify(m.data));
-		});
 		
 	}
 	return app;

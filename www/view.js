@@ -9,19 +9,17 @@ var app = function(app) {
 
 ////////////////////////////////////
 		// menu page
-	
-				
+		
 		var menu = v.menu = new createjs.Container();
 		
 		var menuTop = v.menuTop = makeTop();
 		menu.addChild(menuTop);	
-		
-		
+
 		var menuContent = v.menuContent = new createjs.Container();
 		menuContent.setBounds(0,0,900,1200);
 		menu.addChild(menuContent);
 		
-		var menuBacking = v.menuBacking = new zim.Rectangle(900, 1200, "#333");
+		var menuBacking = new zim.Rectangle(900, 1200, "#333");
 		menuContent.addChild(menuBacking);	
 		
 		var menuPrev = v.menuPrev = new zim.Triangle(200,150,150,"#BBB");
@@ -41,20 +39,23 @@ var app = function(app) {
 			{label:new zim.Label("DELE", 70, null, "white")}
 		];
 		
-		var editTabs = v.editTabs = new zim.Tabs(900, 120, tabData);
-		menuContent.addChild(editTabs);
+		var menuTabs = v.menuTabs = new zim.Tabs(900, 120, tabData);
+		menuContent.addChild(menuTabs);
 		 
 		var menuDeck = v.menuDeck = new createjs.Container();
 		menuContent.addChild(menuDeck);
 		
 		v.makeMenuDeck = function(set) {
+
+			menuDeck.removeAllChildren();
+			
 			var size = 20;
 			var cols = m.cols;
 			var width = size*m.cols;
-			var tile; var margin=4;
-			menuDeck.removeAllChildren();
+			var tile; var margin=4; var gap=1;
+						
 			for (var i=0; i<6; i++) {
-				tile = new zim.Rectangle(width+margin*2,width+margin*2,"#333");
+				tile = new zim.Rectangle(width+margin*2,width+margin*2,"#444");
 				menuDeck.addChild(tile);
 				tile.x = i%3*width;
 				tile.y = Math.floor(i/3)*width;		
@@ -64,7 +65,7 @@ var app = function(app) {
 				var square; 
 				var data = m.data[set][card];
 				for (var i=0; i<data.length; i++) {
-					square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
+					square = new zim.Rectangle(size-gap,size-gap,(data[i])?"black":color);
 					square.data = data[i];
 					tile.addChild(square);
 					square.x = i%cols*size+margin;
@@ -72,12 +73,11 @@ var app = function(app) {
 				}
 			}
 			v.handleArrows();
-			v.handleTabs();
+			v.handleTabs();	
 			stage.update();
 		}
 		
 		v.handleArrows = function() {
-			// arrows
 			if (m.data.length - 1 - m.currentSet > 0) {
 				menuContent.addChild(menuNext);
 			} else {
@@ -85,7 +85,7 @@ var app = function(app) {
 			}
 			if (m.currentSet > 1 ) { 
 				menuContent.addChild(menuPrev);
-			} else if (m.currentSet > 0 && editTabs.selectedIndex == 0) {
+			} else if (m.currentSet > 0 && menuTabs.selectedIndex == 0) {
 				menuContent.addChild(menuPrev);
 			} else {
 				menuContent.removeChild(menuPrev);
@@ -93,34 +93,41 @@ var app = function(app) {
 		}
 		
 		v.handleTabs = function() {
-			// tabs
 			if (m.currentSet == 0) {
-				editTabs.buttons[1].enabled = false;
-				editTabs.buttons[2].enabled = false;
-				editTabs.labels[1].color = "#999";
-				editTabs.labels[2].color = "#999";
+				menuTabs.buttons[1].enabled = false;
+				menuTabs.buttons[2].enabled = false;
+				menuTabs.labels[1].color = "#999";
+				menuTabs.labels[2].color = "#999";
 			} else {
-				if (editTabs.selectedIndex != 1) editTabs.buttons[1].enabled = true;
-				if (editTabs.selectedIndex != 2) editTabs.buttons[2].enabled = true;
-				editTabs.labels[1].color = "white";
-				editTabs.labels[2].color = "white";
+				if (menuTabs.selectedIndex != 1) menuTabs.buttons[1].enabled = true;
+				if (menuTabs.selectedIndex != 2) menuTabs.buttons[2].enabled = true;
+				menuTabs.labels[1].color = "white";
+				menuTabs.labels[2].color = "white";
 			}
 		}
 		
 		v.makeMenuDeck(0);
 		
 		zim.centerReg(menuDeck, menuBacking);	
-		menuDeck.y += 50;	
+		menuDeck.y += 50;
 
-
-			
-		
-		
 		//menuContent.addChild(new zim.Grid(menuContent, null, false));
-		//menuContent.addChild(new zim.Guide(menuContent, false, false));
+		//menuContent.addChild(new zim.Guide(menuContent, false, false))
 		
-
-
+		// container, width, height, label, color, drag, resets, modal, corner, etc.
+		var menuConfirmLab = new zim.Label("DELETE DECK?",80 , null, "white");
+		var menuConfirm = v.menuConfirm = new zim.Pane(menuContent, 900, 700, menuConfirmLab, "#c00",null,null,null,0);
+		menuConfirmLab.y -= 100;
+		
+		// width, height, tabs, color, rollColor, offColor, auto, spacing, corner, labelAdjust, keyEnabled
+		var menuConfirmTabs = v.menuConfirmTabs = new zim.Tabs({width:600, height:150, tabs:[
+			{label:new zim.Label("YES", 80, null, "white")}, 
+			{label:new zim.Label("NO", 80, null, "white")}
+		], auto:false, spacing:20});
+		menuConfirm.addChild(menuConfirmTabs);
+		zim.centerReg(menuConfirmTabs);
+		menuConfirmTabs.y = 100;
+		
 		var menuNav = v.menuNav = makeNav("NEW", "HELP");
 		menu.addChild(menuNav);
 		
@@ -129,9 +136,12 @@ var app = function(app) {
 			{object:menuContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
 			{object:menuNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
-		layout.add(new zim.Layout(menu, regions, 0, "#ddd", true, null, stage));
+		var shape = null; // new createjs.Shape();
+		layout.add(new zim.Layout(menu, regions, 0, "#ddd", true, shape, stage));
 
 		//stage.addChild(new zim.Grid(menu));
+		
+		
 		
 ////////////////////////////////////
 		// first page
@@ -188,7 +198,7 @@ var app = function(app) {
 				
 		var edit = v.edit = new createjs.Container();
 		
-		var editTop = v.editTop = makeTop();
+		var editTop = v.editTop = makeTop(false); // only give them a done button
 		edit.addChild(editTop);
 		
 		var editBar = new createjs.Container();
@@ -272,6 +282,7 @@ var app = function(app) {
 			if (zot(backButton)) backButton = true;
 			var top = new createjs.Container();
 			top.setBounds(0,0,350,50);
+			zog(backButton);
 			if (backButton) {
 				top.button = new zim.Triangle(30,30,30,"rgba(0,0,0,.4)");
 				top.button.rotation = -90;

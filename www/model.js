@@ -47,6 +47,14 @@ var app = function(app) {
 			data[m.currentSet][m.currentCard] = newData;
 			localStorage.data = JSON.stringify(data);
 		}
+		
+		m.removeSet = function(index) {
+			data.splice(index, 1);
+			if (m.currentSet > data.length-1) {
+				m.currentSet--;
+			}		
+			localStorage.data = JSON.stringify(data);
+		}
 
 		return m;
 	}

@@ -41,9 +41,11 @@
 var scaling = "full"; // full automatically sets width and height to window size
 var width = null;
 var height = null;
+var rollover = !zim.mobile(); 
+
 var stage, stageW, stageH;
 
-var frame = new zim.Frame(scaling, width, height); 
+var frame = new zim.Frame({scaling:scaling, width:width, height:height, rollover:rollover}); 
 
 frame.on("ready", function() {	
 	zog("ready from ZIM Frame");
@@ -51,6 +53,9 @@ frame.on("ready", function() {
 	stage = frame.stage;
 	stageW = frame.width;
 	stageH = frame.height;
+	
+	zim.OPTIMIZE = true; // means components will not stage.update()
+	zim.ACTIONEVENT = "mousedown"; // this is default but put here as reminder
 	
 	var layout = new zim.LayoutManager();
 	
