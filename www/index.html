@@ -7,6 +7,10 @@
 <script>var zon = true; // true for comments from zim code</script>
 <script src="http://d309knd7es5f10.cloudfront.net/zim_2.2.js"></script>
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script> 
+<script src="model.js"></script>
+<script src="view.js"></script>
+<script src="controller.js"></script>
+
 
 <style>
 	body {margin:0px; padding:0px; background-color:#000;}
@@ -24,78 +28,23 @@
 var scaling = "full"; // full automatically sets width and height to window size
 var width = null;
 var height = null;
+var stage, stageW, stageH;
+
 var frame = new zim.Frame(scaling, width, height); 
 frame.on("ready", function() {	
 	zog("ready from ZIM Frame");
 	
-	var stage = frame.stage;
-	var stageW = frame.width;
-	var stageH = frame.height;
+	stage = frame.stage;
+	stageW = frame.width;
+	stageH = frame.height;
 	
-	var cols = 13; 
-	var size = 100; // square size
-	var margin = 1;
+	var model = app.makeModel();
+	var view = app.makeView(model);
+	var controller = app.makeController(model, view);
 	
-	var box = new createjs.Container();
-	stage.addChild(box);
+	stage.addChild(view.edit);
+	zim.fit(view.edit,0,0,stageW,stageH);
 	
-	var backing = new zim.Rectangle(cols*size+margin*2-1, cols*size+margin*2-1, "#666");
-	box.addChild(backing);
-	
-	var squares = new createjs.Container();
-	box.addChild(squares);
-	squares.x=squares.y=margin;
-	
-	var data = [];
-	
-	for (var d=0; d<cols*cols; d++) {
-		data.push(1); //zim.rand(0,1));
-	} 
-	
-	var square; var color;
-	for (var i=0; i<data.length; i++) {
-		square = new zim.Rectangle(99,99,(data[i])?"yellow":"black");
-		square.data = data[i];
-		squares.addChild(square);
-		square.changed = false;
-		square.x = i%cols*100;
-		square.y = Math.floor(i/cols)*100;
-	}
-	
-	zim.fit(box,0,0,stageW,stageH);
-	
-	var currentColor; var currentData;
-	
-	squares.on("mousedown", function(e) {
-		square = e.target;
-		currentData = Math.abs(square.data-1);	
-		currentColor = (currentData)?"yellow":"black"
-		square.color = currentColor;
-		square.data = currentData;
-		square.changed = true;
-		stage.update();
-	});
-	
-	squares.on("pressmove", function(e) {
-		for (var i=0; i<data.length; i++) {
-			square = squares.getChildAt(i);
-			if (square.changed) continue;
-			if (zim.hitTestPoint(square, stage.mouseX, stage.mouseY)) {
-				square.color = currentColor;
-				square.data = currentData;
-				square.changed = true;
-				stage.update();
-			}
-		}
-	});
-	
-	squares.on("pressup", function() {
-		for (var i=0; i<data.length; i++) {
-			square = squares.getChildAt(i);
-			square.changed = false;
-		}
-	});
-
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {
 		stageW = frame.width;
