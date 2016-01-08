@@ -1,14 +1,13 @@
 
 var app = function(app) {
 	
-	app.makeView = function(model, layouts) {
+	app.makeView = function(m, layouts) { // m is model
 		
 		var v = {}; // this view object will hold all the pages and we return it
-		var m = model; // the data object from model.js
 
 ////////////////////////////////////
 		// Card class for making and updating tiled cards 
-		// extends a createjs.Container in a manner provided by createjs
+		// extends a createjs.Shape in a manner provided by createjs
 		// Card takes the data from m.data unless a data array is passed to it
 		// we pass a data array to Card for the help and about section
 		
@@ -55,7 +54,9 @@ var app = function(app) {
 				}
 			}
 			
-			this.setColor = function(index, newColor) {				
+			this.setColor = function(index, newColor) {			
+				// notice a little bleed on desktops - fine on mobile
+				// so if this were not mobile I would redraw the whole card
 				var data = m.data[m.currentSet][m.currentCard];
 				var x; var y; var co
 				x = index%cols*size; 
@@ -67,55 +68,6 @@ var app = function(app) {
 		}
 		createjs.extend(Card, createjs.Shape); // for some reason gave error if put below where we use the class
 		createjs.promote(Card, "Shape");
-
-
-	
-////////////////////////////////////
-		// Card class for making and updating tiled cards 
-		// extends a createjs.Container in a manner provided by createjs
-		// Card takes the data from m.data unless a data array is passed to it
-		// we pass a data array to Card for the help and about section
-		
-		/*
-		function Card(set, card, color, size, margin, data) {
-			var duo; if (duo = zob(Card, arguments, null, this)) return duo; // see ZIM duo
-			this.Container_constructor(); // this is provided by the createjs.promote method below
-			
-			
-			if (zot(size)) size = 100;
-			if (zot(margin)) margin = 1;
-					
-			this.size = size; // store square size as property for outside access	
-			var cols = m.cols;
-			
-			this.width = this.height = cols*size+margin*2-1;
-			var backing = new zim.Rectangle(this.width, this.height, "#444");
-			this.addChild(backing);
-
-			var squares = this.squares = new createjs.Container();	// provide outside access to squares	
-			this.addChild(squares);
-			squares.x=squares.y=margin;
-			
-			this.update = function(set, card, color, data) { // method used by controller to update pictures
-				return;
-				if (zot(data)) data = m.data[set][card]; // if no data is passed, use m.data
-				squares.removeAllChildren();
-				var square; 
-				for (var i=0; i<data.length; i++) {
-					square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color); // if 1 in data then black
-					square.data = data[i]; // store the 0 or 1 data right on the square (used by controller)
-					squares.addChild(square);
-					square.changed = false; // used by controller to handle setting rollover color once per press down
-					square.x = i%cols*size; // tile columns
-					square.y = Math.floor(i/cols)*size; // tile rows
-				}
-			}			
-			this.update(set, card, color, data);
-			
-		}
-		createjs.extend(Card, createjs.Container); // for some reason gave error if put below where we use the class
-		createjs.promote(Card, "Container");
-		*/
 
 
 // STRATEGY
@@ -479,6 +431,7 @@ var app = function(app) {
 		editSub.y = 18;
 		editBar.addChild(editSub);
 		
+		// coded this before zim.Tabs were created
 		var editButs = v.editButs = new createjs.Container();
 		var butColor; var but; var lab;
 		for (var i=0; i<6; i++) {

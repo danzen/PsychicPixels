@@ -1,30 +1,53 @@
 
 var app = function(app) {
 
-	app.makeController = function(m, v, pages) {
+	app.makeController = function(m, v, pages) { // m is model, v is view
+	
+		// controller captures events from swipes and presses
+		// it then calls functions on the model and view
+		// and if needed goes to the next page
+		// there are three general types of events
+		// Pages events, HotSpots events and custom events (right on view objects)		
 		
+		// any time pages.go() is used a page event is fired
+		// and e.target.lastPage gets the old page
+		// and e.target.page gets the new page
+		// this can be handy because sometimes people swipe or click
+		// and you can consolidate events here
 		
-		// events on pages object
-		
-		pages.on("page", function(e) {			
-			if (e.target.page == v.help){
+		pages.on("page", function(e) {
+			if (e.target.page == v.menu) {
+				v.makeMenuDeck();
+			} else if (e.target.page == v.help){
 				v.helpAnimate();
-			}	
-			if (e.target.page == v.about){
+			} else if (e.target.page == v.about){
 				v.aboutAnimate()	
-			}		
-			if (e.target.lastPage == v.help){
+			} else if (e.target.lastPage == v.help){
 				v.helpAnimate(false);
-			}	
-			if (e.target.lastPage == v.about){
+			} else if (e.target.lastPage == v.about){
 				v.aboutAnimate(false);	
 			}			
 		});
 		
+		pages.on("return", function() {
+			pages.go(pages.lastPage, "left");
+		});
+		
+		// The Pages object handles all the swipes
+		// the HotSpots object will handle most of the presses (mousedowns as set by zim.ACTIONEVENT)
+		// the exceptions are the menuDeck which gets its own swipes (not page swipes) and a press
+		// and the drag drawing on the editCard which gets its own events
+		
+		// sometimes we go to the same page but want to do different things
+		// like when we go to the edit page from the NEW button or from the menuDeck
+		// in that case, we call a custom function like newDeck();
+		// this will do the new stuff and then call pages.go(v.edit)
+		// sometimes we don't go anywhere like hitting the arrow
+		
 		var hs = new zim.HotSpots([
 			
-			{page:v.first, rect:v.firstContent, 	call:function() {goMenu("right");}},
-			{page:v.first, rect:v.firstNav.left, 	call:function() {goMenu("right");}},
+			{page:v.first, rect:v.firstContent, 	call:function() {pages.go(v.menu, "right");}},
+			{page:v.first, rect:v.firstNav.left, 	call:function() {pages.go(v.menu, "right");}},
 			{page:v.first, rect:v.firstNav.right, 	call:function() {pages.go(v.help, "right");}},
 			
 			{page:v.menu,  rect:v.menuTop,			call:function() {pages.go(v.first, "left");}},
@@ -33,56 +56,34 @@ var app = function(app) {
 			{page:v.menu,  rect:v.menuNav.left, 	call:function() {newDeck();}},
 			{page:v.menu,  rect:v.menuNav.right, 	call:function() {pages.go(v.help, "right");}},
 			
-			{page:v.edit,  rect:v.editTop, 			call:function() {goMenu("left");}},
-			{page:v.edit,  rect:v.editNav.right, 	call:function() {goMenu("left");}},			
-			
-			{page:v.play,  rect:v.playTop, 			call:function() {goMenu("left")}},
+			{page:v.edit,  rect:v.editTop, 			call:function() {pages.go(v.menu, "left");}},
+			{page:v.edit,  rect:v.editNav.left, 	call:function() {editClear();}},
+			{page:v.edit,  rect:v.editNav.right, 	call:function() {pages.go(v.menu, "left");}},	
+
+			{page:v.play,  rect:v.playTop, 			call:function() {pages.go(v.menu, "left");}},
 			{page:v.play,  rect:v.playReveal, 		call:function() {reveal();}},
 			{page:v.play,  rect:v.playNav.left, 	call:function() {score(1);}},
 			{page:v.play,  rect:v.playNav.right, 	call:function() {score(0);}},
 			
 			{page:v.result,rect:v.resultTop, 		call:function() {pages.go(v.menu, "left");}},
-			{page:v.result,rect:v.resultNav.left, 	call:function() {menuDeck();}},
+			{page:v.result,rect:v.resultNav.left, 	call:function() {menuDeckPress();}},
 			{page:v.result,rect:v.resultNav.right, 	call:function() {pages.go(v.menu, "left");}},
 			
-			{page:v.help,	rect:v.helpTop,		 	call:function() {goMenu("right");}},
-			{page:v.help,	rect:v.helpNav.left, 	call:function() {goMenu("right");}},
-			{page:v.help,	rect:v.helpContent, 	call:function() {goMenu("right");}},
+			{page:v.help,	rect:v.helpTop,		 	call:function() {pages.go(v.menu, "right");}},
+			{page:v.help,	rect:v.helpNav.left, 	call:function() {pages.go(v.menu, "right");}},
+			{page:v.help,	rect:v.helpContent, 	call:function() {pages.go(v.menu, "right");}},
 			{page:v.help,	rect:v.helpNav.right, 	call:function() {pages.go(v.about, "right");}},
 			
 			{page:v.about,	rect:v.aboutTop,		call:function() {pages.go(v.help, "left");}},
 			{page:v.about,	rect:v.aboutContent, 	call:function() {zog("danzen");}},
-			{page:v.about,	rect:v.aboutNav.left, 	call:function() {goMenu("right");}},
+			{page:v.about,	rect:v.aboutNav.left, 	call:function() {pages.go(v.menu, "right");}},
 			{page:v.about,	rect:v.aboutNav.right, 	call:function() {pages.go(v.help, "left");}}
 			
 		]);
 		
-		// Events for play
-		
-		function score(n) {
-			m.currentCard = zim.rand(0,5);
-			zim.shuffle(m.colors);
-			v.playCard.update()	;
-			m.score += n;
-			m.tries++;			
-			if (m.tries >= 6) {
-				v.resultUpdate();
-				pages.go(v.result, "right");
-			} else {
-				v.playPop.show();
-			}
-			stage.update();	
-		}
-		
-		function reveal() {
-			v.playPop.hide();
-			stage.update();
-		}
-		
-		
 		// events for menu
 				
-		function menuDeck() {
+		function menuDeckPress() {
 			if (v.menuTabs.selectedIndex == 0) { // play
 				m.score = 0;
 				m.tries = 0;
@@ -106,19 +107,7 @@ var app = function(app) {
 				stage.update();		
 			}			
 		}
-
-		function goMenu(direction) {		
-			v.makeMenuDeck();
-			pages.go(v.menu, direction);
-		}
 		
-		function menuArrow(direction) {
-			m.currentSet += direction;
-			m.currentSet = Math.min(Math.max(m.currentSet, 0), m.data.length-1);
-			zim.shuffle(m.colors);
-			v.makeMenuDeck();
-		}
-
 		function newDeck() {
 			m.newSet(); 
 			zim.shuffle(m.colors);
@@ -128,10 +117,18 @@ var app = function(app) {
 			pages.go(v.edit, "right");
 		}
 		
+		function menuArrow(direction) {
+			m.currentSet += direction;
+			m.currentSet = Math.min(Math.max(m.currentSet, 0), m.data.length-1);
+			zim.shuffle(m.colors);
+			v.makeMenuDeck();
+		}
+
+
 		// hard coded events for menu
 		
-		v.menuDeck.on("click", function() {
-			menuDeck();
+		v.menuDeck.on("click", function() { // went to click here to let people swipe deck
+			menuDeckPress();
 		});
 		
 		v.menuDeckSwipe.on("swipe", function(e) {			
@@ -140,9 +137,8 @@ var app = function(app) {
 			} else if (e.target.direction == "down" && v.menuContent.contains(v.menuPrev)) {
 				menuArrow(-1);
 			} else if (e.target.direction == "left") {
-				menuDeck();
+				menuDeckPress();
 			}
-			zop(e);
 		});
 		
 		v.menuTabs.on("change", function() {
@@ -180,19 +176,12 @@ var app = function(app) {
 		v.editCard.on("pressmove", function(e) {
 			var index = getSquare(); // runs a zim.hitTestGrid() for mouseX and mouseY
 			if (zot(index) || v.editCard.changed[index]) return; // already changed
-			setColor(index);
-
-			// old way with hitTests was quite laggy on mobile
-			/*for (var i=0; i<data.length; i++) {
-				square = v.editCard.squares.getChildAt(i);
-				if (square.changed) continue;
-				if (zim.hitTestPoint(square, stage.mouseX, stage.mouseY)) {
-					square.color = currentColor;
-					square.data = currentData;
-					square.changed = true;
-					stage.update();
-				}
-			}*/						
+			setColor(index);				
+		});
+		
+		v.editCard.on("pressup", function() {
+			v.editCard.resetChanged();
+			m.save();
 		});
 		
 		function setColor(index) {
@@ -203,29 +192,15 @@ var app = function(app) {
 		}
 		
 		function getSquare() {
-			
 			// plan for right handed and people like to see under finger
 			// so offset finger press a little - did testing, 8/100 seemed good
-			// remember, this is scaled down
-			
-			// added below to a zim.hitTestGrid() function so no longer used
-			// var point = v.editCard.squares.globalToLocal(stage.mouseX-8, stage.mouseY-8);
-			// var col = Math.min(m.cols-1,Math.max(0,Math.floor(point.x/v.editCard.size)));
-			// var row = Math.min(m.cols-1,Math.max(0,Math.floor(point.y/v.editCard.size)));			
-			// var squareNum = row*m.cols + col;
-			// return v.editCard.squares.getChildAt(squareNum);
-			
+			// remember, this is scaled down			
 			return zim.hitTestGrid(
 					v.editCard, v.editCard.width, v.editCard.height, 
 					m.cols, m.cols, stage.mouseX-8, stage.mouseY-8
 			);
 		}
-		
-		v.editCard.on("pressup", function() {
-			v.editCard.resetChanged();
-			m.save();
-		});
-		
+
 		// change cards in edit
 		var but; var color;
 		v.editButs.on("mousedown", function(e) {
@@ -236,7 +211,7 @@ var app = function(app) {
 		});
 		
 		// clear in edit
-		v.editNav.left.on("mousedown", function(e) {
+		function editClear() {
 			var data = m.data[m.currentSet][m.currentCard];			
 			for (var i=0; i<data.length; i++) {
 				data[i]=0;
@@ -244,7 +219,31 @@ var app = function(app) {
 			m.save();
 			v.editCard.update();
 			stage.update();
-		});
+		};
+		
+		
+		// Events for play
+		
+		function score(n) {
+			m.currentCard = zim.rand(0,5);
+			zim.shuffle(m.colors);
+			v.playCard.update()	;
+			m.score += n;
+			m.tries++;			
+			if (m.tries >= 6) {
+				v.resultUpdate();
+				pages.go(v.result, "right");
+			} else {
+				v.playPop.show();
+			}
+			stage.update();	
+		}
+		
+		function reveal() {
+			v.playPop.hide();
+			stage.update();
+		}
+		
 		
 		
 	}

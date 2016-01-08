@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon-precomposed" href="url_to_icon_57x57" />
 
 <script>var zon = true; // true for comments from zim code</script>
-<script src="../code/live/zim.js"></script>
+<script src="../code/live/zim_2.3.js"></script>
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script> 
 <script src="model.js"></script>
 <script src="view.js"></script>
@@ -59,6 +59,7 @@ frame.on("ready", function() {
 	// this will hold all our layouts so we can resize them all at once
 	var layouts = new zim.LayoutManager();
 	
+	
 	// here we call functions in our model and view js files
 	// model holds all the data and view holds all the layouts (assets)
 	var m = app.makeModel();
@@ -94,10 +95,10 @@ frame.on("ready", function() {
 	}, 1000);	
 	
 	var pages = new zim.Pages(stage, [
-		// swipe ["right", "left", "down", "up"]
-		{page:v.first, swipe:[v.menu,v.menu,v.menu,v.menu]},	
-		{page:v.help, swipe:[v.menu,v.menu,v.menu,v.menu]},
-		{page:v.about, swipe:[v.help,v.help,v.menu,v.menu]},
+		// swipe ["right", "left", "down", "up"] or dispatch a custom event like "return"
+		{page:v.first, swipe:[null,v.help,v.menu,v.menu]},	
+		{page:v.help, swipe:["return",v.about,v.menu,v.menu]},
+		{page:v.about, swipe:[v.help,v.menu,v.menu,v.menu]},
 		{page:v.menu, swipe:[v.first,null,null,null]},		
 		{page:v.edit, swipe:[null,null,null,null]},
 		{page:v.play, swipe:[null,null,null,null]},
@@ -105,11 +106,11 @@ frame.on("ready", function() {
 	], "none", 500);
 	pages.swipe.duration = 50;
 	pages.swipe.distance = 25;
-	// stage.addChild(pages);
-	// pages.go(v.menu);
-	// v.aboutAnimate();
 	
+	
+	// here we make the controller to handle events and update the model and view
 	var c = app.makeController(m, v, pages);
+
 
 	// overlay and underlay graphics for visual effect only
 	// although underlay provides base for general swiping
@@ -123,7 +124,6 @@ frame.on("ready", function() {
 	preload.on("complete", function() {
 		underlay = new createjs.Bitmap(preload.getResult("scratch"));
 		stage.addChildAt(underlay,0);
-		underlay.mouseEnabled = false;
 		underlay.alpha = .4;
 		zim.scaleTo(underlay,stage,100,100,"biggest");
 		overlay = new createjs.Bitmap(preload.getResult("scratch"));
@@ -150,7 +150,7 @@ frame.on("ready", function() {
 		stage.update();
 	}); // end of resizing
 	
-	// put orientation change code in here
+	// put orientation change code in here - this app should be locked in vertical
 	frame.on("orientation", function(e) {		
 		stage.update();
 	}); // end of orientation
