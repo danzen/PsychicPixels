@@ -4,6 +4,14 @@
 <meta charset="utf-8" />
 <title>Psychic Pixels</title> 
 
+<!-- for Apple -->
+<!-- found user-scalable=no worked best for full screen auto scaling -->
+<meta name="viewport" content="user-scalable=no, minimal-ui" />
+<!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui" />--> 
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon-precomposed" href="url_to_icon_57x57" />
+
 <script>var zon = true; // true for comments from zim code</script>
 <script src="http://d309knd7es5f10.cloudfront.net/zim_2.2.js"></script>
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script> 
@@ -38,19 +46,20 @@ frame.on("ready", function() {
 	stageW = frame.width;
 	stageH = frame.height;
 	
+	var layout = new zim.LayoutManager();
+	
 	var model = app.makeModel();
-	var view = app.makeView(model);
+	var view = app.makeView(model, layout);
 	var controller = app.makeController(model, view);
 	
 	stage.addChild(view.edit);
-	zim.fit(view.edit,0,0,stageW,stageH);
 	
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {
 		stageW = frame.width;
 		stageH = frame.height;
-
-		//zim.scaleTo(button, stage, 30); // 30% the stage width (also see zim.Layout)
+		
+		layout.resize();
 		
 		stage.update();
 	}); // end of resizing
