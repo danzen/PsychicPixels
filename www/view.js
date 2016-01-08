@@ -19,12 +19,13 @@ var app = function(app) {
 		var editBar = p.editNav = new createjs.Container();
 		editBar.setBounds(0,0,400,51);
 		edit.addChild(editBar);
+		
 		var editSub = new zim.Label("CARDS", 20, null, "white");
 		editSub.x = 14;
 		editSub.y = 18;
 		editBar.addChild(editSub);
+		
 		var editButs = p.editButs = new createjs.Container();
-		editButs.selected = 0;
 		var butColor; var but; var lab;
 		for (var i=0; i<6; i++) {
 			lab = new zim.Label(String(i+1), null, null, "#444", "white");
@@ -33,14 +34,11 @@ var app = function(app) {
 			editButs.addChildAt(but, i);
 			but.x = i*50;
 		}
-
 		editButs.x = 100;
 		editButs.y = 1;
 		editBar.addChild(editButs);
-				
-		var data = d.data;		 
-		var cols = d.cols; 
-		
+				 
+		var cols = d.cols; 		
 		var size = 100; // square size
 		var margin = 1;
 		
@@ -55,9 +53,10 @@ var app = function(app) {
 		editContent.addChild(squares);
 		squares.x=squares.y=margin;
 		
-		p.makeSquares = function(set, index, color) {
+		p.makeSquares = function(set, card, color) {
 			squares.removeAllChildren();
 			var square; 
+			var data = d.data[set][card];
 			for (var i=0; i<data.length; i++) {
 				square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
 				square.data = data[i];

@@ -24,7 +24,8 @@ var app = function(app) {
 		});
 		
 		p.squares.on("pressmove", function(e) {
-			for (var i=0; i<d.data.length; i++) {
+			var data = d.data[d.currentSet][d.currentCard];
+			for (var i=0; i<data.length; i++) {
 				square = p.squares.getChildAt(i);
 				if (square.changed) continue;
 				if (zim.hitTestPoint(square, stage.mouseX, stage.mouseY)) {
@@ -37,16 +38,20 @@ var app = function(app) {
 		});
 		
 		p.squares.on("pressup", function() {
-			for (var i=0; i<d.data.length; i++) {
+			var data = d.data[d.currentSet][d.currentCard];
+			var newData = [];
+			for (var i=0; i<data.length; i++) {
 				square = p.squares.getChildAt(i);
 				square.changed = false;
+				newData.push(square.data);
 			}
+			d.save(newData);
 		});
 		
 		var but; var color;
 		p.editButs.on("click", function(e) {
 			but = e.target;
-			p.editButs.selected = but.num;
+			d.currentCard = but.num;
 			color = d.colors[but.num];
 			p.squares.color = color
 			stage.canvas.style.backgroundColor = color;
@@ -55,9 +60,18 @@ var app = function(app) {
 		});
 		
 		p.editClear.on("click", function() {
-			// write clear to data
-			p.makeSquares(0, p.editButs.selected, p.squares.color);
+			var data = d.data[d.currentSet][d.currentCard];
+			var newData = [];
+			for (var i=0; i<data.length; i++) {
+				newData.push(0);
+			}
+			d.save(newData);
+			p.makeSquares(d.currentSet, d.currentCard, p.squares.color);
 			stage.update();
+		});
+		
+		p.editDone.on("click", function() {
+			zog(JSON.stringify(d.data));
 		});
 		
 	}
