@@ -22,7 +22,17 @@
 
 <style>
 	body {margin:0px; padding:0px; background-color:#000;}
-	#myCanvas {position:absolute; background-color:yellow;}
+	#myCanvas {position:absolute; background-color:#ddd;}
+	@font-face { 
+		font-family: homespun;        
+		src: 	url('upstater-ink-regular.eot?#iefix') format('embedded-opentype'),
+				url('homespun.ttf') format('truetype');
+	}
+	@font-face { 
+		font-family: TRS Million;        
+		src: 	url('upstater-ink-regular.eot?#iefix') format('embedded-opentype'),
+				url('trs.ttf') format('truetype');
+	}
 </style>
 
 <script>
@@ -52,7 +62,7 @@ frame.on("ready", function() {
 	var view = app.makeView(model, layout);
 	var controller = app.makeController(model, view);
 	
-	stage.addChild(view.edit);
+	stage.addChild(view.first);
 	
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {
@@ -77,5 +87,6 @@ frame.on("ready", function() {
 
 <body>
 <!-- canvas with id="myCanvas" is made by zim Frame -->
+<div style="font-family:homespun;">h</div><div style="font-family:TRS Million;">h</div>
 </body>
 </html>

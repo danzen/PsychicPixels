@@ -59,7 +59,7 @@ var app = function(app) {
 			stage.update();	
 		});
 		
-		p.editClear.on("click", function() {
+		p.editNav.left.on("click", function() {
 			var data = d.data[d.currentSet][d.currentCard];
 			var newData = [];
 			for (var i=0; i<data.length; i++) {
@@ -70,7 +70,7 @@ var app = function(app) {
 			stage.update();
 		});
 		
-		p.editDone.on("click", function() {
+		p.editNav.right.on("click", function() {
 			zog(JSON.stringify(d.data));
 		});
 		
