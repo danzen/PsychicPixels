@@ -75,7 +75,7 @@ var app = function(app) {
 			{page:v.help,	rect:v.helpNav.right, 	call:function() {pages.go(v.about, "right");}},
 			
 			{page:v.about,	rect:v.aboutTop,		call:function() {pages.go(v.help, "left");}},
-			{page:v.about,	rect:v.aboutContent, 	call:function() {zog("danzen");}},
+			{page:v.about,	rect:v.aboutContent, 	call:function() {zgo("http://danzen.com", "_blank");}},
 			{page:v.about,	rect:v.aboutNav.left, 	call:function() {pages.go(v.menu, "right");}},
 			{page:v.about,	rect:v.aboutNav.right, 	call:function() {pages.go(v.help, "left");}}
 			
