@@ -7,30 +7,64 @@ var app = function(app) {
 		// events for pages object (swipes)
 		
 		pages.on("page", function(e) {			
-			if (e.target.page == v.edit){
-					
+			if (e.target.page == v.play){
+				
 			}		
 		});
 		
 		var hs = new zim.HotSpots([
 			{page:v.first, rect:v.firstNav.left, 	call:function() {goMenu("right");}},
 			{page:v.first, rect:v.firstContent, 	call:function() {goMenu("right");}},
-			{page:v.menu,  rect:v.menuTop.button,	call:function() {pages.go(v.first, "left");}},
+			{page:v.menu,  rect:v.menuTop,	call:function() {pages.go(v.first, "left");}},
 			{page:v.menu,  rect:v.menuNav.left, 	call:function() {newDeck();}},
 			{page:v.menu,  rect:v.menuDeck, 		call:function() {menuDeck();}},
 			{page:v.menu,  rect:v.menuPrev, 		call:function() {menuArrow(-1);}},
 			{page:v.menu,  rect:v.menuNext, 		call:function() {menuArrow(1);}},
-			{page:v.edit,  rect:v.editNav.right, 	call:function() {goMenu("left");}}
+			{page:v.edit,  rect:v.editNav.right, 	call:function() {goMenu("left");}},
+			{page:v.play,  rect:v.playReveal, 		call:function() {reveal();}},
+			{page:v.play,  rect:v.playTop, 	call:function() {pages.go(v.menu, "left");}},
+			{page:v.play,  rect:v.playNav.left, 	call:function() {score(1);}},
+			{page:v.play,  rect:v.playNav.right, 	call:function() {score(0);}},
+			{page:v.result,rect:v.resultNav.left, 	call:function() {menuDeck();}},
+			{page:v.result,rect:v.resultNav.right, 	call:function() {pages.go(v.menu, "left");}},
+			{page:v.result,rect:v.resultTop, 		call:function() {pages.go(v.menu, "left");}},
 		]);
 		
+		function score(n) {
+			var randomCard = zim.rand(0,5);
+			var randomColor = zim.rand(0,5);
+			v.playCard.update(m.currentSet, randomCard, m.colors[randomColor])	
+			m.score += n;
+			m.tries++;
+			
+			if (m.tries >= 6) {
+				v.resultUpdate();
+				pages.go(v.result, "right");
+			} else {
+				v.playPop.show();
+			}
+			stage.update();	
+		}
+		
+		function reveal() {
+			v.playPop.hide();
+			stage.update();
+		}
+		
 		function menuDeck() {
-			if (v.menuTabs.selectedIndex == 0) {
-				zog("play");
-			} else if (v.menuTabs.selectedIndex == 1) {
-				v.makeSquares(m.currentSet, 0, m.colors[0]); 
+			if (v.menuTabs.selectedIndex == 0) { // play
+				m.score = 0;
+				m.tries = 0;
+				var randomCard = zim.rand(0,5);
+				var randomColor = zim.rand(0,5);
+				v.playCard.update(m.currentSet, randomCard, m.colors[randomColor]);			
+				v.playPop.show();	
+				pages.go(v.play, "right");						
+			} else if (v.menuTabs.selectedIndex == 1) { // edit
+				v.editCard.update(m.currentSet, 0, m.colors[0]); 
 				v.setEditButColors();
 				pages.go(v.edit, "right");
-			} else {
+			} else { // delete
 				v.menuConfirm.show();	
 				stage.update();		
 			}			
@@ -52,7 +86,7 @@ var app = function(app) {
 		function newDeck() {
 			m.newSet(); 
 			zim.shuffle(m.colors);
-			v.makeSquares(m.currentSet, 0, m.colors[0]); 
+			v.editCard.update(m.currentSet, 0, m.colors[0]); 
 			v.setEditButColors();
 			v.menuTabs.selectedIndex = 1;
 			pages.go(v.edit, "right");
@@ -83,7 +117,7 @@ var app = function(app) {
 		var currentColor;
 		
 		// drawing pixels in edit (next three events)
-		v.squares.on("mousedown", function(e) {
+		v.editCard.squares.on("mousedown", function(e) {
 			square = e.target;
 			currentData = Math.abs(square.data-1);	
 			currentColor = (currentData)?"black":m.colors[m.currentCard];
@@ -93,10 +127,10 @@ var app = function(app) {
 			stage.update();
 		});
 		
-		v.squares.on("pressmove", function(e) {
+		v.editCard.squares.on("pressmove", function(e) {
 			var data = m.data[m.currentSet][m.currentCard];
 			for (var i=0; i<data.length; i++) {
-				square = v.squares.getChildAt(i);
+				square = v.editCard.squares.getChildAt(i);
 				if (square.changed) continue;
 				if (zim.hitTestPoint(square, stage.mouseX, stage.mouseY)) {
 					square.color = currentColor;
@@ -107,11 +141,11 @@ var app = function(app) {
 			}
 		});
 		
-		v.squares.on("pressup", function() {
+		v.editCard.squares.on("pressup", function() {
 			var data = m.data[m.currentSet][m.currentCard];
 			var newData = [];
 			for (var i=0; i<data.length; i++) {
-				square = v.squares.getChildAt(i);
+				square = v.editCard.squares.getChildAt(i);
 				square.changed = false;
 				newData.push(square.data);
 			}
@@ -124,8 +158,8 @@ var app = function(app) {
 			but = e.target;
 			m.currentCard = but.num;
 			color = m.colors[but.num];
-			v.squares.color = color
-			v.makeSquares(m.currentSet, m.currentCard, color);
+			v.editCard.squares.color = color
+			v.editCard.update(m.currentSet, m.currentCard, color);
 			stage.update();	
 		});
 		
@@ -137,7 +171,7 @@ var app = function(app) {
 				newData.push(0);
 			}
 			m.save(newData);
-			v.makeSquares(m.currentSet, m.currentCard, v.squares.color);
+			v.editCard.update(m.currentSet, m.currentCard, m.colors[m.currentCard]);
 			stage.update();
 		});
 		

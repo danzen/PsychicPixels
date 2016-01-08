@@ -5,7 +5,120 @@ var app = function(app) {
 		
 		var v = {}; // this view object will hold all the pages and we return it
 		var m = model; // the data object from model.js
+		
+////////////////////////////////////
+		// Card class for making and updating tiled cards (not used on menu page)
+		
+		function Card(set, card, color) {
+			this.Container_constructor();
+			var cols = m.cols; 		
+			var size = 100; // square size
+			var margin = 1;			
+			
+			var backing = new zim.Rectangle(cols*size+margin*2-1, cols*size+margin*2-1, "#666");
+			
+			this.addChild(backing);
+			
+			var squares = this.squares = new createjs.Container();		
+			this.addChild(squares);
+			squares.x=squares.y=margin;
+			
+			this.update = function(set, card, color) {
+				squares.removeAllChildren();
+				var square; 
+				var data = m.data[set][card];
+				for (var i=0; i<data.length; i++) {
+					square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
+					square.data = data[i];
+					squares.addChild(square);
+					square.changed = false;
+					square.x = i%cols*size;
+					square.y = Math.floor(i/cols)*size;
+				}
+			}			
+			this.update(set, card, color);
+			
+		}
+		createjs.extend(Card, createjs.Container);
+		createjs.promote(Card, "Container");
+		
+////////////////////////////////////
+		// result page
+		
+		var result = v.result = new createjs.Container();
+		
+		var resultTop = v.resultTop = makeTop();
+		result.addChild(resultTop);	
 
+		var resultContent = v.resultContent = new createjs.Container();
+		resultContent.addChild(new zim.Rectangle(1000,1000));
+		var resultEcho = new createjs.Container();
+		resultContent.addChild(resultEcho);
+		var resultLab = new zim.Label("test", 140, "homespun", "white");
+		resultContent.addChild(resultLab);
+		
+		v.resultUpdate = function() {
+			resultLab.text = m.resultPhrases[m.score];	
+			zim.centerReg(resultLab, resultContent);
+			resultLab.x-=4;
+			resultEcho.removeAllChildren();	
+			multiplyText(resultLab, resultEcho, m.score+1);
+			zim.centerReg(resultEcho, resultContent);
+			resultEcho.x-=4;	
+		}		
+				
+		var resultNav = v.resultNav = makeNav("AGAIN", "MENU");
+		result.addChild(resultNav);
+		
+		result.addChild(resultContent); // added here so pane is modal
+		
+		var regions = [ 
+			{object:resultTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:resultContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:resultNav, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
+		];
+		var shape = null; // new createjs.Shape();
+		layout.add(new zim.Layout(result, regions, 0, "#ddd", true, shape, stage));
+	
+
+////////////////////////////////////
+		// play page
+		
+		var play = v.play = new createjs.Container();
+		
+		var playTop = v.playTop = makeTop();
+		play.addChild(playTop);	
+
+		var playContent = v.playContent = new createjs.Container();
+
+		var playCard = v.playCard = new Card(0,0,"red");
+		playContent.addChild(playCard);	
+		
+		// container, width, height, label, color, drag, resets, modal, corner, etc.
+		var playPopLab = new zim.Label("GUESS HIDDEN SHAPE",80 , null, "white");
+		var playPop = v.playPop = new zim.Pane(playContent, 1400, 2000, playPopLab, "#000",null,null,null,0,1);
+		playPopLab.y -= 150;
+		
+		var playRevealLab = new zim.Label("REVEAL",80 , null, "white");
+		// width, height, label, color, rollColor, borderColor, borderThickness, corner, shadowColor, shadowBlur, hitPadding
+		var playReveal = v.playReveal = new zim.Button(400, 150, playRevealLab, "#333", "#555", null, null, 0, null, null, 100);
+		playPop.addChild(playReveal);
+		zim.centerReg(playReveal);
+		playReveal.y = 150;
+				
+		var playNav = v.playNav = makeNav("RIGHT", "WRONG");
+		play.addChild(playNav);
+		
+		play.addChild(playContent); // added here so pane is modal
+		
+		var regions = [ 
+			{object:playTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:playContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:playNav, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
+		];
+		var shape = null; // new createjs.Shape();
+		layout.add(new zim.Layout(play, regions, 0, "#ddd", true, shape, stage));
+		
 
 ////////////////////////////////////
 		// menu page
@@ -17,7 +130,6 @@ var app = function(app) {
 
 		var menuContent = v.menuContent = new createjs.Container();
 		menuContent.setBounds(0,0,900,1200);
-		menu.addChild(menuContent);
 		
 		var menuBacking = new zim.Rectangle(900, 1200, "#333");
 		menuContent.addChild(menuBacking);	
@@ -131,13 +243,14 @@ var app = function(app) {
 		var menuNav = v.menuNav = makeNav("NEW", "HELP");
 		menu.addChild(menuNav);
 		
+		menu.addChild(menuContent); // added here so pane is modal
+		
 		var regions = [ 
 			{object:menuTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
 			{object:menuContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
 			{object:menuNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
-		var shape = null; // new createjs.Shape();
-		layout.add(new zim.Layout(menu, regions, 0, "#ddd", true, shape, stage));
+		layout.add(new zim.Layout(menu, regions, 0, "#ddd", true, null, stage));
 
 		//stage.addChild(new zim.Grid(menu));
 		
@@ -230,39 +343,14 @@ var app = function(app) {
 			stage.update();
 		}
 		v.setEditButColors();
-				 
-		var cols = m.cols; 		
-		var size = 100; // square size
-		var margin = 1;
-		
+
 		var editContent = new createjs.Container();
 		edit.addChild(editContent);
-		
-		var backing = new zim.Rectangle(cols*size+margin*2-1, cols*size+margin*2-1, "#666");
-		editContent.addChild(backing);
-		
-		var squares = v.squares = new createjs.Container();
-		squares.cursor="pointer";
-		squares.color = color;
-		editContent.addChild(squares);
-		squares.x=squares.y=margin;
-		
-		v.makeSquares = function(set, card, color) {
-			squares.removeAllChildren();
-			var square; 
-			var data = m.data[set][card];
-			for (var i=0; i<data.length; i++) {
-				square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
-				square.data = data[i];
-				squares.addChild(square);
-				square.changed = false;
-				square.x = i%cols*size;
-				square.y = Math.floor(i/cols)*size;
-			}
-		}
-		
-		v.makeSquares(0, 0, color); // controller also makes squares so store on p
-		
+				
+		var editCard = v.editCard = new Card(0, 0, color);
+		editContent.addChild(editCard);
+		editCard.cursor = "pointer";
+
 		var editNav = v.editNav = makeNav("CLEAR", "DONE");
 		edit.addChild(editNav);
 		
@@ -282,7 +370,6 @@ var app = function(app) {
 			if (zot(backButton)) backButton = true;
 			var top = new createjs.Container();
 			top.setBounds(0,0,350,50);
-			zog(backButton);
 			if (backButton) {
 				top.button = new zim.Triangle(30,30,30,"rgba(0,0,0,.4)");
 				top.button.rotation = -90;
@@ -293,23 +380,24 @@ var app = function(app) {
 			}
 			var lab = zim.Label("PSYCHIC·PIXELS",40,"homespun","#222");
 			top.addChild(lab);
-			lab.x = 47; lab.y = 9;
-			var lab2 = zim.Label("PSYCHIC·PIXELS",40,"homespun","#222");
-			top.addChild(lab2);
-			lab2.x = 47; lab2.y = -3;
-			lab2.scaleY = 1.6;
-			lab2.alpha = .2;
-			var lab3 = zim.Label("PSYCHIC·PIXELS",40,"homespun","#222");
-			top.addChild(lab3);
-			lab3.x = 47; lab3.y = -20;
-			lab3.scaleY = 2.5;
-			lab3.alpha = .1;
-			var lab4 = zim.Label("PSYCHIC·PIXELS",40,"homespun","#222");
-			top.addChild(lab4);
-			lab4.x = 47; lab4.y = -34;
-			lab4.scaleY = 3.3;
-			lab4.alpha = .05;
+			zim.centerReg(lab);
+			lab.x = 47+130; lab.y = 9+19;
+			multiplyText(lab, top);
 			return top;
+		}
+		
+		function multiplyText(label, holder, num) {
+			if (zot(num)) num = 3;
+			var lab;
+			var pAlpha = new zim.Proportion(1,num,.2,.05);
+			for (var i=1; i<=num; i++) {
+				lab = label.clone();
+				holder.addChild(lab);
+				zim.centerReg(lab);
+				lab.x = label.x; lab.y = label.y;
+				lab.scaleY = .7+.9*i;
+				lab.alpha = pAlpha.convert(i);
+			}			
 		}
 		
 		function makeNav(left, right) {
