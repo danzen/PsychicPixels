@@ -40,11 +40,7 @@
     <!-- Plugins -->
 	<access origin="*" browserOnly="true"/>
 	<gap:plugin name="org.apache.cordova.inappbrowser" />
-	<plugin name="InAppBrowser" value="CDVInAppBrowser" /> 
-	<feature name="InAppBrowser">
-		<param name="ios-package" value="CDVInAppBrowser" />
-	</feature>
-
+	
     <!-- Define app icon for each platform. -->
 	<!-- https://github.com/phonegap/phonegap/wiki/App-Icon-Sizes -->
     <icon src="icon.png" />
