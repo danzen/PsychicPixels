@@ -12,6 +12,8 @@ var app = function(app) {
 		var data; var i; var j;
 		
 		m.newSet = function() { // function to add a new set of cards to the data
+			m.currentSet = data.length; 
+			m.currentCard = 0;
 			data.push([]); // set array that will hold six cards
 			set = data[data.length-1];
 			

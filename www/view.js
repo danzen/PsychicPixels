@@ -18,20 +18,40 @@ var app = function(app) {
 		
 		
 		var menuContent = v.menuContent = new createjs.Container();
+		menuContent.setBounds(0,0,900,1200);
 		menu.addChild(menuContent);
 		
 		var menuBacking = v.menuBacking = new zim.Rectangle(900, 1200, "#333");
 		menuContent.addChild(menuBacking);	
+		
+		var menuPrev = v.menuPrev = new zim.Triangle(200,150,150,"#BBB");
+		zim.expand(menuPrev, 150, 50);
+		menuPrev.x = menuBacking.width / 2;
+		menuPrev.y = 265;
+		
+		var menuNext = v.menuNext = new zim.Triangle(200,150,150,"#BBB");
+		zim.expand(menuNext, 150, 50);
+		menuNext.rotation = 180;		
+		menuNext.x = menuBacking.width / 2;
+		menuNext.y = 1040;
+		
+		var tabData = [		
+			{label:new zim.Label("PLAY", 70, null, "white")},
+			{label:new zim.Label("EDIT", 70, null, "white")},
+			{label:new zim.Label("DELE", 70, null, "white")}
+		];
+		
+		var editTabs = v.editTabs = new zim.Tabs(900, 120, tabData);
+		menuContent.addChild(editTabs);
 		 
 		var menuDeck = v.menuDeck = new createjs.Container();
 		menuContent.addChild(menuDeck);
 		
-		var size = 20;
-		var cols = m.cols;
-		var width = size*m.cols;
-		var tile; var margin=4;
-		
 		v.makeMenuDeck = function(set) {
+			var size = 20;
+			var cols = m.cols;
+			var width = size*m.cols;
+			var tile; var margin=4;
 			menuDeck.removeAllChildren();
 			for (var i=0; i<6; i++) {
 				tile = new zim.Rectangle(width+margin*2,width+margin*2,"#333");
@@ -51,6 +71,40 @@ var app = function(app) {
 					square.y = Math.floor(i/cols)*size+margin;
 				}
 			}
+			v.handleArrows();
+			v.handleTabs();
+			stage.update();
+		}
+		
+		v.handleArrows = function() {
+			// arrows
+			if (m.data.length - 1 - m.currentSet > 0) {
+				menuContent.addChild(menuNext);
+			} else {
+				menuContent.removeChild(menuNext);
+			}
+			if (m.currentSet > 1 ) { 
+				menuContent.addChild(menuPrev);
+			} else if (m.currentSet > 0 && editTabs.selectedIndex == 0) {
+				menuContent.addChild(menuPrev);
+			} else {
+				menuContent.removeChild(menuPrev);
+			}	
+		}
+		
+		v.handleTabs = function() {
+			// tabs
+			if (m.currentSet == 0) {
+				editTabs.buttons[1].enabled = false;
+				editTabs.buttons[2].enabled = false;
+				editTabs.labels[1].color = "#999";
+				editTabs.labels[2].color = "#999";
+			} else {
+				if (editTabs.selectedIndex != 1) editTabs.buttons[1].enabled = true;
+				if (editTabs.selectedIndex != 2) editTabs.buttons[2].enabled = true;
+				editTabs.labels[1].color = "white";
+				editTabs.labels[2].color = "white";
+			}
 		}
 		
 		v.makeMenuDeck(0);
@@ -58,36 +112,14 @@ var app = function(app) {
 		zim.centerReg(menuDeck, menuBacking);	
 		menuDeck.y += 50;	
 
-		var menuPrev = v.menuPrev = new zim.Triangle(200,150,150,"#BBB");
-		zim.expand(menuPrev, 150, 50);
-		menuPrev.x = menuBacking.width / 2;
-		menuPrev.y = 265;
-		
-		var menuNext = v.menuNext = new zim.Triangle(200,150,150,"#BBB");
-		zim.expand(menuNext, 150, 50);
-		menuNext.rotation = 180;		
-		menuNext.x = menuBacking.width / 2;
-		menuNext.y = 1040;
+
 			
-		if (m.data.length > 1) {
-			menuContent.addChild(menuNext);
-		}
+		
 		
 		//menuContent.addChild(new zim.Grid(menuContent, null, false));
 		//menuContent.addChild(new zim.Guide(menuContent, false, false));
 		
-		var tabData = [		
-			{label:new zim.Label("PLAY", 70, null, "white")},
-			{label:new zim.Label("EDIT", 70, null, "white")},
-			{label:new zim.Label("DELE", 70, null, "white")}
-		];
-		
-		var tabs = new zim.Tabs(900, 120, tabData);
-		menuContent.addChild(tabs);
-		tabs.buttons[1].enabled = false;
-		tabs.buttons[2].enabled = false;
-		tabs.labels[1].color = "#999";
-		tabs.labels[2].color = "#999";
+
 
 		var menuNav = v.menuNav = makeNav("NEW", "HELP");
 		menu.addChild(menuNav);
@@ -172,14 +204,22 @@ var app = function(app) {
 		var butColor; var but; var lab;
 		for (var i=0; i<6; i++) {
 			lab = new zim.Label(String(i+1), null, null, "#444", "white");
-			but = new zim.Button(49, 49, lab, m.colors[i], "#333", null, 0, 0, -1);
+			but = new zim.Button(49, 49, lab, "#222", "#333", null, 0, 0, -1);
 			but.num = i;
-			editButs.addChildAt(but, i);
+			editButs.addChild(but);
 			but.x = i*50;
 		}
 		editButs.x = 100;
 		editButs.y = 1;
 		editBar.addChild(editButs);
+		v.setEditButColors = function() {
+			for (var i=0; i<6; i++) {
+				but = editButs.getChildAt(i);
+				but.color = m.colors[i];
+			}
+			stage.update();
+		}
+		v.setEditButColors();
 				 
 		var cols = m.cols; 		
 		var size = 100; // square size
