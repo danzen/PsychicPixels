@@ -489,7 +489,7 @@ var app = function(app) {
 		playContent.addChild(playCard);	
 		
 		// container, width, height, label, color, drag, resets, modal, corner, etc.
-		var playPopLab = new zim.Label("GUESS HIDDEN SHAPE",80 , null, "white");
+		var playPopLab = new zim.Label("PREDICT HIDDEN SHAPE",80 , null, "white");
 		var playPop = v.playPop = new zim.Pane(playContent, 1400, 2000, playPopLab, "#000",null,null,null,0,1);
 		playPopLab.y -= 150;
 		
