@@ -20,8 +20,8 @@
 <script src="controller.js"></script>
 
 <style>
-	body {margin:0px; padding:0px; background-color:#ddd;}
-	#myCanvas {position:absolute; background-color:#bbb;}
+	body {margin:0px; padding:0px; background-color:#fff;}
+	#myCanvas {position:absolute; background-color:#fff;}
 	@font-face { 
 		font-family: homespun;        
 		src: 	url('homespun.eot?#iefix') format('embedded-opentype'),
@@ -63,36 +63,7 @@ frame.on("ready", function() {
 	// here we call functions in our model and view js files
 	// model holds all the data and view holds all the layouts (assets)
 	var m = app.makeModel();
-	var v = app.makeView(m, layouts);
-	
-
-	// FONT DELAY
-	// preloading fonts is troublesome 
-	// we use the font in html for quickest response
-	// so wait a few seconds while we spin a pixel
-	// then animate in and refresh stage a few times 
-	
-	var pixel = new zim.Rectangle(25,25, "#666");
-	stage.addChild(pixel);
-	zim.centerReg(pixel, stage);
-	zim.animate(pixel, {rotation:720, alpha:0}, 2000);
-
-	var count=0;
-	var interval = setInterval(function() {
-		count++;
-		stage.update();
-		if (count == 2) {
-			if (underlay) stage.addChild(underlay);
-			stage.addChild(pages);
-			if (overlay) stage.addChild(overlay);
-			stage.removeChild(pixel);
-			v.first.cache(0,0,stageW,stageH);
-			v.first.alpha = 0;
-			zim.animate(v.first, {alpha:1}, 2000, null, function() {v.first.uncache();});
-		} else if (count > 5) {
-			clearInterval(interval);
-		}
-	}, 1000);	
+	var v = app.makeView(m, layouts);	
 	
 	var pages = new zim.Pages(stage, [
 		// swipe ["right", "left", "down", "up"] or dispatch a custom event like "return"
@@ -122,16 +93,27 @@ frame.on("ready", function() {
 	var manifest = [{src:"images/scratch.jpg", id:"scratch"}]; 
 	var preload = new createjs.LoadQueue(false); 
 	preload.on("complete", function() {
+		
 		underlay = new createjs.Bitmap(preload.getResult("scratch"));
-		stage.addChildAt(underlay,0);
-		underlay.alpha = .4;
+		stage.addChild(underlay);
+		underlay.alpha = 0;
 		zim.scaleTo(underlay,stage,100,100,"biggest");
+		zim.animate({target:underlay, obj:{alpha:.4}, time:1000, ticker:false});
+		
+		stage.addChild(pages);
+		v.first.cache(0,0,stageW,stageH);
+		v.first.alpha = 0;
+		// note, the Ticker in this animation starts right away even if delay is set
+		// and this Ticker will run the background animations so they have their Ticker set to false
+		zim.animate(v.first, {alpha:1}, 2000, null, function() {v.first.uncache();}, null, 500);
+		
 		overlay = new createjs.Bitmap(preload.getResult("scratch"));
 		overlay.mouseEnabled = false;
 		stage.addChild(overlay);
-		overlay.alpha = .16;
+		overlay.alpha = 0;
 		zim.scaleTo(overlay,stage,100,100,"biggest");
-		zss("myCanvas").backgroundColor = "#FFF";
+		zim.animate({target:overlay, obj:{alpha:.16}, time:1000, ticker:false});
+
 	});	
 	preload.loadManifest(manifest);
 
@@ -165,6 +147,6 @@ frame.on("ready", function() {
 
 <body>
 <!-- canvas with id="myCanvas" is made by zim Frame -->
-<div style="font-family:homespun;">hello pixels</div>
+<div style="font-family:homespun; color:#FFF>hello pixels</div>
 </body>
 </html>
