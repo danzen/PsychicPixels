@@ -13,8 +13,12 @@ var app = function(app) {
 		});
 		
 		var hs = new zim.HotSpots([
-			{page:v.first, rect:v.firstNav.left, call:function() {pages.go(v.edit, "down");}},
-			{page:v.edit,  rect:v.editTop.button, call:function() {pages.go(v.first, "left");}}
+			{page:v.first, rect:v.firstNav.left, call:function() {pages.go(v.menu, "right");}},
+			{page:v.first, rect:v.firstContent, call:function() {pages.go(v.menu, "right");}},
+			{page:v.menu,  rect:v.menuTop.button, call:function() {pages.go(v.first, "left");}},
+			{page:v.menu,  rect:v.menuNav.left, call:function() {pages.go(v.edit, "right");}},
+			{page:v.menu,  rect:v.menuDeck, call:function() {pages.go(v.edit, "right");}},
+			{page:v.edit,  rect:v.editTop.button, call:function() {pages.go(v.menu, "left");}}
 		]);
 
 		// events for edit page
@@ -59,7 +63,7 @@ var app = function(app) {
 		});
 		
 		var but; var color;
-		v.editButs.on("click", function(e) {
+		v.editButs.on("mousedown", function(e) {
 			but = e.target;
 			m.currentCard = but.num;
 			color = m.colors[but.num];
@@ -68,7 +72,7 @@ var app = function(app) {
 			stage.update();	
 		});
 		
-		v.editNav.left.on("click", function() {
+		v.editNav.left.on("mousedown", function() {
 			var data = m.data[m.currentSet][m.currentCard];
 			var newData = [];
 			for (var i=0; i<data.length; i++) {

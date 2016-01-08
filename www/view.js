@@ -8,6 +8,100 @@ var app = function(app) {
 
 
 ////////////////////////////////////
+		// menu page
+	
+				
+		var menu = v.menu = new createjs.Container();
+		
+		var menuTop = v.menuTop = makeTop();
+		menu.addChild(menuTop);	
+		
+		
+		var menuContent = v.menuContent = new createjs.Container();
+		menu.addChild(menuContent);
+		
+		var menuBacking = v.menuBacking = new zim.Rectangle(900, 1200, "#333");
+		menuContent.addChild(menuBacking);	
+		 
+		var menuDeck = v.menuDeck = new createjs.Container();
+		menuContent.addChild(menuDeck);
+		
+		var size = 20;
+		var cols = m.cols;
+		var width = size*m.cols;
+		var tile; var margin=4;
+		
+		v.makeMenuDeck = function(set) {
+			menuDeck.removeAllChildren();
+			for (var i=0; i<6; i++) {
+				tile = new zim.Rectangle(width+margin*2,width+margin*2,"#333");
+				menuDeck.addChild(tile);
+				tile.x = i%3*width;
+				tile.y = Math.floor(i/3)*width;		
+				makeTile(tile, set, i, m.colors[i]);
+			}
+			function makeTile(tile, set, card, color) {
+				var square; 
+				var data = m.data[set][card];
+				for (var i=0; i<data.length; i++) {
+					square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
+					square.data = data[i];
+					tile.addChild(square);
+					square.x = i%cols*size+margin;
+					square.y = Math.floor(i/cols)*size+margin;
+				}
+			}
+		}
+		
+		v.makeMenuDeck(0);
+		
+		zim.centerReg(menuDeck, menuBacking);	
+		menuDeck.y += 50;	
+
+		var menuPrev = v.menuPrev = new zim.Triangle(200,150,150,"#BBB");
+		zim.expand(menuPrev, 150, 50);
+		menuPrev.x = menuBacking.width / 2;
+		menuPrev.y = 265;
+		
+		var menuNext = v.menuNext = new zim.Triangle(200,150,150,"#BBB");
+		zim.expand(menuNext, 150, 50);
+		menuNext.rotation = 180;		
+		menuNext.x = menuBacking.width / 2;
+		menuNext.y = 1040;
+			
+		if (m.data.length > 1) {
+			menuContent.addChild(menuNext);
+		}
+		
+		//menuContent.addChild(new zim.Grid(menuContent, null, false));
+		//menuContent.addChild(new zim.Guide(menuContent, false, false));
+		
+		var tabData = [		
+			{label:new zim.Label("PLAY", 70, null, "white")},
+			{label:new zim.Label("EDIT", 70, null, "white")},
+			{label:new zim.Label("DELE", 70, null, "white")}
+		];
+		
+		var tabs = new zim.Tabs(900, 120, tabData);
+		menuContent.addChild(tabs);
+		tabs.buttons[1].enabled = false;
+		tabs.buttons[2].enabled = false;
+		tabs.labels[1].color = "#999";
+		tabs.labels[2].color = "#999";
+
+		var menuNav = v.menuNav = makeNav("NEW", "HELP");
+		menu.addChild(menuNav);
+		
+		var regions = [ 
+			{object:menuTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:menuContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:menuNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
+		];
+		layout.add(new zim.Layout(menu, regions, 0, "#ddd", true, null, stage));
+
+		//stage.addChild(new zim.Grid(menu));
+		
+////////////////////////////////////
 		// first page
 	
 				
@@ -19,7 +113,6 @@ var app = function(app) {
 		
 		var firstContent = v.firstContent = new createjs.Container();
 		first.addChild(firstContent);
-		firstContent.cursor = "pointer";
 		var size = 50;
 		var cols = m.cols;
 		var width = size*m.cols;
@@ -144,7 +237,6 @@ var app = function(app) {
 				top.button.rotation = -90;
 				top.button.x = 19;
 				top.button.y = 28;
-				top.button.cursor = "pointer";
 				top.addChild(top.button);
 				zim.expand(top.button);
 			}

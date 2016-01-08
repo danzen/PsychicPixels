@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon-precomposed" href="url_to_icon_57x57" />
 
 <script>var zon = true; // true for comments from zim code</script>
-<script src="http://d309knd7es5f10.cloudfront.net/zim_2.2.js"></script>
+<script src="../code/live/zim.js"></script>
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script> 
 <script src="model.js"></script>
 <script src="view.js"></script>
@@ -65,6 +65,8 @@ frame.on("ready", function() {
 	
 	// preloading fonts is troublesome
 	// so wait a few seconds, animate in and refresh stage a few times 
+	// comment out while testing locally
+	/*
 	var count=0;
 	var interval = setInterval(function() {
 		count++;
@@ -79,16 +81,19 @@ frame.on("ready", function() {
 			clearInterval(interval);
 		}
 	}, 1000);
+	*/
 
 	
 	var pages = new zim.Pages(stage, [
 		// swipe ["right", "left", "down", "up"]
-		{page:v.first, swipe:[null,null,null,v.edit]},			
-		{page:v.edit, swipe:[null,null,v.first,null]}		
-	], "slide", 500);
+		{page:v.first, swipe:[null,v.menu,null,null]},	
+		{page:v.menu, swipe:[v.first,v.edit,null,null]},		
+		{page:v.edit, swipe:[v.menu,null,null,null]}		
+	], "none", 500);
 	pages.swipe.duration = 50;
 	pages.swipe.distance = 25;
-		
+	stage.addChild(pages);
+	pages.go(v.menu);	
 	
 	var c = app.makeController(m, v, pages);
 	
@@ -98,8 +103,9 @@ frame.on("ready", function() {
 	frame.on("resize", function(e) {
 		stageW = frame.width;
 		stageH = frame.height;
-		
+
 		layout.resize();
+		pages.resize();
 		
 		stage.update();
 	}); // end of resizing
