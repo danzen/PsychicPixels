@@ -3,37 +3,37 @@ var app = function(app) {
 	
 	app.makeView = function(model, layout) {
 		
-		var p = {}; // this object will hold all the pages and we return it
-		var d = model; // the data object from model.js
+		var v = {}; // this view object will hold all the pages and we return it
+		var m = model; // the data object from model.js
 
 
 ////////////////////////////////////
 		// first page
 	
 				
-		var first = p.first = new createjs.Container();
+		var first = v.first = new createjs.Container();
 		
-		var firstTop = p.firstTop = makeTop(false); // no back arrow
+		var firstTop = v.firstTop = makeTop(false); // no back arrow
 		first.addChild(firstTop);	
 		
 		
-		var firstContent = p.firstContent = new createjs.Container();
+		var firstContent = v.firstContent = new createjs.Container();
 		first.addChild(firstContent);
 		firstContent.cursor = "pointer";
 		var size = 50;
-		var cols = d.cols;
-		var width = size*d.cols;
+		var cols = m.cols;
+		var width = size*m.cols;
 		var tile; var margin=6;
 		for (var i=0; i<6; i++) {
 			tile = new zim.Rectangle(width+margin*2,width+margin*2,"#333");
 			firstContent.addChild(tile);
 			tile.x = i%2*width;
 			tile.y = Math.floor(i/2)*width;		
-			makeTile(tile, 0, i, d.colors[i]);
+			makeTile(tile, 0, i, m.colors[i]);
  		}
 		function makeTile(holder, set, card, color) {
 			var square; 
-			var data = d.data[set][card];
+			var data = m.data[set][card];
 			for (var i=0; i<data.length; i++) {
 				square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
 				square.data = data[i];
@@ -44,7 +44,7 @@ var app = function(app) {
 		}
 		
 
-		var firstNav = p.firstNav = makeNav("START", "HELP");
+		var firstNav = v.firstNav = makeNav("START", "HELP");
 		first.addChild(firstNav);
 		
 		var regions = [ 
@@ -59,14 +59,14 @@ var app = function(app) {
 ////////////////////////////////////
 		// edit page
 		
-		var color = d.colors[0];
+		var color = m.colors[0];
 		
 		// move to controller
 		// stage.canvas.style.backgroundColor = color;
 				
-		var edit = p.edit = new createjs.Container();
+		var edit = v.edit = new createjs.Container();
 		
-		var editTop = p.editTop = makeTop();
+		var editTop = v.editTop = makeTop();
 		edit.addChild(editTop);
 		
 		var editBar = new createjs.Container();
@@ -78,11 +78,11 @@ var app = function(app) {
 		editSub.y = 18;
 		editBar.addChild(editSub);
 		
-		var editButs = p.editButs = new createjs.Container();
+		var editButs = v.editButs = new createjs.Container();
 		var butColor; var but; var lab;
 		for (var i=0; i<6; i++) {
 			lab = new zim.Label(String(i+1), null, null, "#444", "white");
-			but = new zim.Button(49, 49, lab, d.colors[i], "#333", null, 0, 0, -1);
+			but = new zim.Button(49, 49, lab, m.colors[i], "#333", null, 0, 0, -1);
 			but.num = i;
 			editButs.addChildAt(but, i);
 			but.x = i*50;
@@ -91,7 +91,7 @@ var app = function(app) {
 		editButs.y = 1;
 		editBar.addChild(editButs);
 				 
-		var cols = d.cols; 		
+		var cols = m.cols; 		
 		var size = 100; // square size
 		var margin = 1;
 		
@@ -101,16 +101,16 @@ var app = function(app) {
 		var backing = new zim.Rectangle(cols*size+margin*2-1, cols*size+margin*2-1, "#666");
 		editContent.addChild(backing);
 		
-		var squares = p.squares = new createjs.Container();
+		var squares = v.squares = new createjs.Container();
 		squares.cursor="pointer";
 		squares.color = color;
 		editContent.addChild(squares);
 		squares.x=squares.y=margin;
 		
-		p.makeSquares = function(set, card, color) {
+		v.makeSquares = function(set, card, color) {
 			squares.removeAllChildren();
 			var square; 
-			var data = d.data[set][card];
+			var data = m.data[set][card];
 			for (var i=0; i<data.length; i++) {
 				square = new zim.Rectangle(size-1,size-1,(data[i])?"black":color);
 				square.data = data[i];
@@ -121,9 +121,9 @@ var app = function(app) {
 			}
 		}
 		
-		p.makeSquares(0, 0, color); // controller also makes squares so store on p
+		v.makeSquares(0, 0, color); // controller also makes squares so store on p
 		
-		var editNav = p.editNav = makeNav("CLEAR", "DONE");
+		var editNav = v.editNav = makeNav("CLEAR", "DONE");
 		edit.addChild(editNav);
 		
 		var regions = [ 
@@ -184,7 +184,7 @@ var app = function(app) {
 			return nav;
 		}
 		
-		return p;
+		return v;
 	}
 	return app;
 }(app || {});

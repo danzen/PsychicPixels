@@ -21,22 +21,17 @@
 
 
 <style>
-	body {margin:0px; padding:0px; background-color:#000;}
+	body {margin:0px; padding:0px; background-color:#ddd;}
 	#myCanvas {position:absolute; background-color:#ddd;}
 	@font-face { 
 		font-family: homespun;        
-		src: 	url('upstater-ink-regular.eot?#iefix') format('embedded-opentype'),
+		src: 	url('homespun.eot?#iefix') format('embedded-opentype'),
 				url('homespun.ttf') format('truetype');
-	}
-	@font-face { 
-		font-family: TRS Million;        
-		src: 	url('upstater-ink-regular.eot?#iefix') format('embedded-opentype'),
-				url('trs.ttf') format('truetype');
 	}
 </style>
 
 <script>
-
+	
 // SCALING OPTIONS
 // "none"		sets canvas and stage to dimensions and does not scale if window changes
 // "fit"		sets canvas and stage to dimensions and scales to fit inside window size
@@ -49,6 +44,7 @@ var height = null;
 var stage, stageW, stageH;
 
 var frame = new zim.Frame(scaling, width, height); 
+
 frame.on("ready", function() {	
 	zog("ready from ZIM Frame");
 	
@@ -58,11 +54,32 @@ frame.on("ready", function() {
 	
 	var layout = new zim.LayoutManager();
 	
-	var model = app.makeModel();
-	var view = app.makeView(model, layout);
-	var controller = app.makeController(model, view);
+	var m = app.makeModel();
+	var v = app.makeView(m, layout);
+	var controller = app.makeController(m, v);
 	
-	stage.addChild(view.first);
+	var pixel = new zim.Rectangle(25,25, "#666");
+	stage.addChild(pixel);
+	zim.centerReg(pixel, stage);
+	zim.animate(pixel, {rotation:720, alpha:0}, 2000);
+	
+	// preloading fonts is troublesome
+	// so wait a few seconds, animate in and refresh stage a few times 
+	var count=0;
+	var interval = setInterval(function() {
+		count++;
+		stage.update();
+		if (count == 2) {
+			stage.removeChild(pixel);
+			stage.addChild(v.first);
+			v.first.cache(0,0,stageW,stageH);
+			v.first.alpha = .0;
+			zim.animate(v.first, {alpha:1}, 2000, null, function() {v.first.uncache();});
+		} else if (count > 5) {
+			clearInterval(interval);
+		}
+	}, 1000);
+
 	
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {
@@ -82,6 +99,8 @@ frame.on("ready", function() {
 	stage.update();	
 	
 }); // end of ready
+
+
 </script>
 </head>
 
