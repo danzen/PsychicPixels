@@ -118,8 +118,8 @@ var app = function(app) {
 		first.addChild(firstNav);
 		
 		var regions = [ 
-			{object:firstTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
-			{object:firstContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:firstTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:firstContent, marginTop:4, maxWidth:90, align:"center", valign:"center"},
 			{object:firstNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
 		var shape = null; // new createjs.Shape(); // set to Shape to see bounding boxes in Layout
@@ -217,7 +217,7 @@ var app = function(app) {
 		help.addChild(helpNav);
 		
 		var regions = [ 
-			{object:helpTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:helpTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
 			{object:helpContent, marginTop:4, maxWidth:90, align:"center", valign:"center"},
 			{object:helpNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
@@ -282,7 +282,7 @@ var app = function(app) {
 		about.addChild(aboutNav);
 		
 		var regions = [ 
-			{object:aboutTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:aboutTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
 			{object:aboutContent, marginTop:4, maxWidth:90, align:"center", valign:"center"},
 			{object:aboutNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
@@ -402,8 +402,8 @@ var app = function(app) {
 		menu.addChild(menuContent); // added here so pane is modal
 		
 		var regions = [ 
-			{object:menuTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
-			{object:menuContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:menuTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:menuContent, marginTop:4, maxWidth:90, align:"center", valign:"center"},
 			{object:menuNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
 		layouts.add(new zim.Layout(menu, regions, 0, null, true, null, stage));
@@ -464,7 +464,7 @@ var app = function(app) {
 		edit.addChild(editNav);
 		
 		var regions = [ 
-			{object:editTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:editTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
 			{object:editBar, marginTop:2, maxWidth:100, height:7, align:"right", valign:"middle", backgroundColor:"#000"},
 			{object:editContent, marginTop:2, maxWidth:90, align:"center", valign:"top"},
 			{object:editNav, marginTop:2, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
@@ -506,8 +506,8 @@ var app = function(app) {
 		play.addChild(playContent); // added here so pane is modal
 		
 		var regions = [ 
-			{object:playTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
-			{object:playContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:playTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:playContent, marginTop:4, maxWidth:90, align:"center", valign:"center"},
 			{object:playNav, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
 		var shape = null; // new createjs.Shape();
@@ -546,8 +546,8 @@ var app = function(app) {
 		result.addChild(resultContent); // added here so pane is modal
 		
 		var regions = [ 
-			{object:resultTop, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"top"},
-			{object:resultContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
+			{object:resultTop, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"top"},
+			{object:resultContent, marginTop:4, maxWidth:90, align:"center", valign:"center"},
 			{object:resultNav, marginTop:6, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
 		var shape = null; // new createjs.Shape();
