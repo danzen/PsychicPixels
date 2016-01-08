@@ -52,7 +52,7 @@ var app = function(app) {
 			{object:firstContent, marginTop:5, maxWidth:90, align:"center", valign:"center"},
 			{object:firstNav, marginTop:5, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
-		layout.add(new zim.Layout(first, regions, 0, null, true, null, stage));
+		layout.add(new zim.Layout(first, regions, 0, "#ddd", true, null, stage));
 
 		
 		
@@ -60,9 +60,6 @@ var app = function(app) {
 		// edit page
 		
 		var color = m.colors[0];
-		
-		// move to controller
-		// stage.canvas.style.backgroundColor = color;
 				
 		var edit = v.edit = new createjs.Container();
 		
@@ -132,7 +129,7 @@ var app = function(app) {
 			{object:editContent, marginTop:2, maxWidth:90, align:"center", valign:"top"},
 			{object:editNav, marginTop:2, maxWidth:100, minHeight:10, align:"center", valign:"bottom", backgroundColor:"#000"},
 		];
-		layout.add(new zim.Layout(edit, regions, 0, null, true, null, stage));
+		layout.add(new zim.Layout(edit, regions, 0, "#ddd", true, null, stage));
 
 		// edit.addChild(new zim.Guide(edit));
 

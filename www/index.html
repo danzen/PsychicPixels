@@ -56,7 +56,7 @@ frame.on("ready", function() {
 	
 	var m = app.makeModel();
 	var v = app.makeView(m, layout);
-	var controller = app.makeController(m, v);
+	
 	
 	var pixel = new zim.Rectangle(25,25, "#666");
 	stage.addChild(pixel);
@@ -70,8 +70,8 @@ frame.on("ready", function() {
 		count++;
 		stage.update();
 		if (count == 2) {
+			stage.addChild(pages);
 			stage.removeChild(pixel);
-			stage.addChild(v.first);
 			v.first.cache(0,0,stageW,stageH);
 			v.first.alpha = .0;
 			zim.animate(v.first, {alpha:1}, 2000, null, function() {v.first.uncache();});
@@ -80,6 +80,19 @@ frame.on("ready", function() {
 		}
 	}, 1000);
 
+	
+	var pages = new zim.Pages(stage, [
+		// swipe ["right", "left", "down", "up"]
+		{page:v.first, swipe:[null,null,null,v.edit]},			
+		{page:v.edit, swipe:[null,null,v.first,null]}		
+	], "slide", 500);
+	pages.swipe.duration = 50;
+	pages.swipe.distance = 25;
+		
+	
+	var c = app.makeController(m, v, pages);
+	
+	
 	
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {

@@ -1,10 +1,21 @@
 
 var app = function(app) {
 
-	app.makeController = function(model, view) {
+	app.makeController = function(m, v, pages) {
 		
-		var v = view; // our pages
-		var m = model; // our data
+		
+		// events for pages object (swipes)
+		
+		pages.on("page", function(e) {			
+			if (e.target.page == v.edit){
+					
+			}		
+		});
+		
+		var hs = new zim.HotSpots([
+			{page:v.first, rect:v.firstNav.left, call:function() {pages.go(v.edit, "down");}},
+			{page:v.edit,  rect:v.editTop.button, call:function() {pages.go(v.first, "left");}}
+		]);
 
 		// events for edit page
 		
@@ -53,7 +64,6 @@ var app = function(app) {
 			m.currentCard = but.num;
 			color = m.colors[but.num];
 			v.squares.color = color
-			stage.canvas.style.backgroundColor = color;
 			v.makeSquares(0, but.num, color);
 			stage.update();	
 		});
