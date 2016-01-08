@@ -19,10 +19,9 @@
 <script src="view.js"></script>
 <script src="controller.js"></script>
 
-
 <style>
 	body {margin:0px; padding:0px; background-color:#ddd;}
-	#myCanvas {position:absolute; background-color:#ddd;}
+	#myCanvas {position:absolute; background-color:#bbb;}
 	@font-face { 
 		font-family: homespun;        
 		src: 	url('homespun.eot?#iefix') format('embedded-opentype'),
@@ -57,63 +56,96 @@ frame.on("ready", function() {
 	zim.OPTIMIZE = true; // means components will not stage.update()
 	zim.ACTIONEVENT = "mousedown"; // this is default but put here as reminder
 	
-	var layout = new zim.LayoutManager();
+	// this will hold all our layouts so we can resize them all at once
+	var layouts = new zim.LayoutManager();
 	
+	// here we call functions in our model and view js files
+	// model holds all the data and view holds all the layouts (assets)
 	var m = app.makeModel();
-	var v = app.makeView(m, layout);
+	var v = app.makeView(m, layouts);
 	
+
+	// FONT DELAY
+	// preloading fonts is troublesome 
+	// we use the font in html for quickest response
+	// so wait a few seconds while we spin a pixel
+	// then animate in and refresh stage a few times 
 	
 	var pixel = new zim.Rectangle(25,25, "#666");
 	stage.addChild(pixel);
 	zim.centerReg(pixel, stage);
 	zim.animate(pixel, {rotation:720, alpha:0}, 2000);
-	
-	// preloading fonts is troublesome
-	// so wait a few seconds, animate in and refresh stage a few times 
-	// comment out while testing locally
-	/*
+
 	var count=0;
 	var interval = setInterval(function() {
 		count++;
 		stage.update();
 		if (count == 2) {
+			if (underlay) stage.addChild(underlay);
 			stage.addChild(pages);
+			if (overlay) stage.addChild(overlay);
 			stage.removeChild(pixel);
 			v.first.cache(0,0,stageW,stageH);
-			v.first.alpha = .0;
+			v.first.alpha = 0;
 			zim.animate(v.first, {alpha:1}, 2000, null, function() {v.first.uncache();});
 		} else if (count > 5) {
 			clearInterval(interval);
 		}
-	}, 1000);
-	*/
-
+	}, 1000);	
 	
 	var pages = new zim.Pages(stage, [
 		// swipe ["right", "left", "down", "up"]
-		{page:v.first, swipe:[null,v.menu,null,null]},	
-		{page:v.menu, swipe:[v.first,v.edit,null,null]},		
+		{page:v.first, swipe:[v.menu,v.menu,v.menu,v.menu]},	
+		{page:v.help, swipe:[v.menu,v.menu,v.menu,v.menu]},
+		{page:v.about, swipe:[v.help,v.help,v.menu,v.menu]},
+		{page:v.menu, swipe:[v.first,null,null,null]},		
 		{page:v.edit, swipe:[null,null,null,null]},
 		{page:v.play, swipe:[null,null,null,null]},
 		{page:v.result, swipe:[v.menu,v.menu,v.menu,v.menu]} 	
-	], "none", 1000);
+	], "none", 500);
 	pages.swipe.duration = 50;
 	pages.swipe.distance = 25;
-	stage.addChild(pages);
-	pages.go(v.menu);	
-	// v.playPop.show();
+	// stage.addChild(pages);
+	// pages.go(v.menu);
+	// v.aboutAnimate();
 	
 	var c = app.makeController(m, v, pages);
+
+	// overlay and underlay graphics for visual effect only
+	// although underlay provides base for general swiping
+	// otherwise would want to put a background color on layouts
+	// or a single zim.Rectangle underneath the pages
 	
+	var overlay; var underlay;
 	
+	var manifest = [{src:"images/scratch.jpg", id:"scratch"}]; 
+	var preload = new createjs.LoadQueue(false); 
+	preload.on("complete", function() {
+		underlay = new createjs.Bitmap(preload.getResult("scratch"));
+		stage.addChildAt(underlay,0);
+		underlay.mouseEnabled = false;
+		underlay.alpha = .4;
+		zim.scaleTo(underlay,stage,100,100,"biggest");
+		overlay = new createjs.Bitmap(preload.getResult("scratch"));
+		overlay.mouseEnabled = false;
+		stage.addChild(overlay);
+		overlay.alpha = .16;
+		zim.scaleTo(overlay,stage,100,100,"biggest");
+		zss("myCanvas").backgroundColor = "#FFF";
+	});	
+	preload.loadManifest(manifest);
+
+
 	
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {
 		stageW = frame.width;
 		stageH = frame.height;
 
-		layout.resize();
+		layouts.resize();
 		pages.resize();
+		if (underlay) zim.scaleTo(underlay,stage,100,100,"biggest");
+		if (underlay) zim.scaleTo(overlay,stage,100,100,"biggest");
 		
 		stage.update();
 	}); // end of resizing
@@ -133,6 +165,6 @@ frame.on("ready", function() {
 
 <body>
 <!-- canvas with id="myCanvas" is made by zim Frame -->
-<div style="font-family:homespun;">h</div><div style="font-family:TRS Million;">h</div>
+<div style="font-family:homespun;">hello pixels</div>
 </body>
 </html>
