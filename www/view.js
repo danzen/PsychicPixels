@@ -247,7 +247,7 @@ var app = function(app) {
 		zim.centerReg(aboutDanzen, aboutBacking);
 		aboutDanzen.y -= 100;
 		
-		var aboutDanzenLab = new zim.Label("DANZEN.COM",70,null,"#DDD");
+		var aboutDanzenLab = new zim.Label("danzen.com",70,null,"#DDD");
 		aboutContent.addChild(aboutDanzenLab);
 		zim.centerReg(aboutDanzenLab, aboutBacking);
 		aboutDanzenLab.y += 440;
