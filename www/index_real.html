@@ -2,19 +2,19 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Psychic Pixels</title>
+<title>Psychic Pixels</title> 
 
 <!-- for Apple -->
 <!-- found user-scalable=no worked best for full screen auto scaling -->
 <meta name="viewport" content="user-scalable=no, minimal-ui" />
-<!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui" />-->
+<!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui" />--> 
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 <script src="phonegap.js"></script>
-<script>var zon = true; // true for comments from zim code</script>
-<script src="libraries/zim.js"></script>
-<script src="libraries/createjs-2015.11.26.min.js"></script>
+<script>var zon = false; // true for comments from zim code</script>
+<script src="libraries/zim_2.3.js"></script>
+<script src="libraries/createjs-2015.11.26.min.js"></script> 
 <script src="model.js"></script>
 <script src="view.js"></script>
 <script src="controller.js"></script>
@@ -22,15 +22,15 @@
 <style>
 	body {margin:0px; padding:0px; background-color:#fff;}
 	#myCanvas {position:absolute; background-color:#fff;}
-	@font-face {
-		font-family: homespun;
+	@font-face { 
+		font-family: homespun;        
 		src: 	url('homespun.eot?#iefix') format('embedded-opentype'),
 				url('homespun.ttf') format('truetype');
 	}
 </style>
 
 <script>
-
+	
 // SCALING OPTIONS
 // "none"		sets canvas and stage to dimensions and does not scale if window changes
 // "fit"		sets canvas and stage to dimensions and scales to fit inside window size
@@ -40,45 +40,45 @@
 var scaling = "full"; // full automatically sets width and height to window size
 var width = null;
 var height = null;
-var rollover = !zim.mobile();
+var rollover = !zim.mobile(); 
 
 var stage, stageW, stageH;
 
-var frame = new zim.Frame({scaling:scaling, width:width, height:height, rollover:rollover});
+var frame = new zim.Frame({scaling:scaling, width:width, height:height, rollover:rollover}); 
 
-frame.on("ready", function() {
+frame.on("ready", function() {	
 	zog("ready from ZIM Frame");
-
+	
 	stage = frame.stage;
 	stageW = frame.width;
 	stageH = frame.height;
-
-	//zim.OPTIMIZE = true; // means components will not stage.update()
+	
+	zim.OPTIMIZE = true; // means components will not stage.update()
 	zim.ACTIONEVENT = "mousedown"; // this is default but put here as reminder
-
+	
 	// this will hold all our layouts so we can resize them all at once
 	var layouts = new zim.LayoutManager();
-
-
+	
+	
 	// here we call functions in our model and view js files
 	// model holds all the data and view holds all the layouts (assets)
 	var m = app.makeModel();
-	var v = app.makeView(m, layouts);
-
+	var v = app.makeView(m, layouts);	
+	
 	var pages = new zim.Pages(stage, [
 		// swipe ["right", "left", "down", "up"] or dispatch a custom event like "return"
-		{page:v.first, swipe:[null,v.help,v.menu,v.menu]},
+		{page:v.first, swipe:[null,v.help,v.menu,v.menu]},	
 		{page:v.help, swipe:["return",v.about,v.menu,v.menu]},
 		{page:v.about, swipe:[v.help,v.menu,v.menu,v.menu]},
-		{page:v.menu, swipe:[v.first,null,null,null]},
+		{page:v.menu, swipe:[v.first,null,null,null]},		
 		{page:v.edit, swipe:[null,null,null,null]},
 		{page:v.play, swipe:[null,null,null,null]},
-		{page:v.result, swipe:[v.menu,v.menu,v.menu,v.menu]}
-	], "slide", 50);
+		{page:v.result, swipe:[v.menu,v.menu,v.menu,v.menu]} 	
+	], "none", 500);
 	pages.swipe.duration = 50;
 	pages.swipe.distance = 25;
-
-
+	
+	
 	// here we make the controller to handle events and update the model and view
 	var c = app.makeController(m, v, pages);
 
@@ -87,38 +87,38 @@ frame.on("ready", function() {
 	// although underlay provides base for general swiping
 	// otherwise would want to put a background color on layouts
 	// or a single zim.Rectangle underneath the pages
-
+	
 	var overlay; var underlay;
-
-	var manifest = [{src:"images/scratch.jpg", id:"scratch"}];
-	var preload = new createjs.LoadQueue(false);
+	
+	var manifest = [{src:"images/scratch.jpg", id:"scratch"}]; 
+	var preload = new createjs.LoadQueue(false); 
 	preload.on("complete", function() {
-
+		
 		underlay = new createjs.Bitmap(preload.getResult("scratch"));
 		stage.addChild(underlay);
 		underlay.alpha = 0;
 		zim.scaleTo(underlay,stage,100,100,"biggest");
-		zim.animate({target:underlay, obj:{alpha:.4}, time:1000});
-
+		zim.animate({target:underlay, obj:{alpha:.4}, time:1000, ticker:false});
+		
 		stage.addChild(pages);
 		v.first.cache(0,0,stageW,stageH);
 		v.first.alpha = 0;
 		// note, the Ticker in this animation starts right away even if delay is set
 		// and this Ticker will run the background animations so they have their Ticker set to false
 		zim.animate(v.first, {alpha:1}, 2000, null, function() {v.first.uncache();}, null, 500);
-
+		
 		overlay = new createjs.Bitmap(preload.getResult("scratch"));
 		overlay.mouseEnabled = false;
 		stage.addChild(overlay);
 		overlay.alpha = 0;
 		zim.scaleTo(overlay,stage,100,100,"biggest");
-		zim.animate({target:overlay, obj:{alpha:.16}, time:1000});
+		zim.animate({target:overlay, obj:{alpha:.16}, time:1000, ticker:false});
 
-	});
+	});	
 	preload.loadManifest(manifest);
 
 
-
+	
 	// put resizing code in here (scaling="full" only)
 	frame.on("resize", function(e) {
 		stageW = frame.width;
@@ -128,17 +128,17 @@ frame.on("ready", function() {
 		pages.resize();
 		if (underlay) zim.scaleTo(underlay,stage,100,100,"biggest");
 		if (underlay) zim.scaleTo(overlay,stage,100,100,"biggest");
-
+		
 		stage.update();
 	}); // end of resizing
-
+	
 	// put orientation change code in here - this app should be locked in vertical
-	frame.on("orientation", function(e) {
+	frame.on("orientation", function(e) {		
 		stage.update();
 	}); // end of orientation
-
-	stage.update();
-
+	
+	stage.update();	
+	
 }); // end of ready
 
 

@@ -6,8 +6,9 @@
 // INSTRUCIONS
 // put jsx file in photoshop app presets/scripts/ folder
 // it will show up in your photoshop file>scripts menu under MobileScreens
-// make a directory that has a splash directory in it 
-// and then create ios, android and winphone folders inside the splash folder
+// make a directory that has a splash directory in it
+// make portrait and landscape folders in here
+// and then create ios, android and winphone folders inside each
 // make and save a 2048 square splash screen image
 // would suggest a background color and then a central image
 // as this gets cropped both horizontally and vertically
@@ -23,7 +24,7 @@
 // XML for your PhoneGap Build config.xml (early 2016)
 /*
 	<splash src="splash.png" width="320" height="480" />
-	
+
 	<platform name="ios">
 		<splash src="splash/portrait/ios/Default.png" width="320" height="480" />
 		<splash src="splash/portrait/ios/Default@2x.png" width="640" height="960" />
@@ -32,20 +33,20 @@
 		<splash src="splash/portrait/ios/Default-Portrait-736h@3x.png" width="1242" height="2208" />
 		<splash src="splash/portrait/ios/Default-Portrait.png" width="768" height="1024" />
 		<splash src="splash/portrait/ios/Default-Portrait@2x.png" width="1536" height="2048" />
-		
+
 		<splash src="splash/landscape/ios/Default-Landscape-736h@3x.png" width="2208" height="1242" />
 		<splash src="splash/landscape/ios/Default-Landscape.png" width="1024" height="768" />
 		<splash src="splash/landscape/ios/Default-Landscape@2x.png" width="2048" height="1536" />
 	</platform>
-		
-	<platform name="android">	
+
+	<platform name="android">
 		<splash src="splash/portrait/android/portrait-ldpi.png" width="200" height="320" qualifier="port-ldpi" />
 		<splash src="splash/portrait/android/portrait-mdpi.png" width="320" height="480" qualifier="port-mdpi" />
 		<splash src="splash/portrait/android/portrait-hdpi.png" width="480" height="800" qualifier="port-hdpi" />
 		<splash src="splash/portrait/android/portrait-xhdpi.png" width="720" height="1280" qualifier="port-xhdpi" />
 		<splash src="splash/portrait/android/portrait-xxhdpi.png" width="960" height="1600" qualifier="port-xxhdpi" />
 		<splash src="splash/portrait/android/portrait-xxxhdpi.png" width="1280" height="1920" qualifier="port-xxxhdpi" />
-		
+
 		<splash src="splash/landscape/android/landscape-ldpi.png" width="320" height="200" qualifier="port-ldpi" />
 		<splash src="splash/landscape/android/landscape-mdpi.png" width="480" height="320" qualifier="port-mdpi" />
 		<splash src="splash/landscape/android/landscape-hdpi.png" width="800" height="480" qualifier="port-hdpi" />
@@ -53,8 +54,8 @@
 		<splash src="splash/landscape/android/landscape-xxhdpi.png" width="1600" height="960" qualifier="port-xxhdpi" />
 		<splash src="splash/landscape/android/landscape-xxhdpi.png" width="1920" height="1280" qualifier="port-xxxhdpi" />
 	</platform>
-		
-	<platform name="winphone">	
+
+	<platform name="winphone">
 		<splash src="splash/portrait/winphone/SplashScreenImage.jpg" width="480" height="800" />
     </platform>
 */
@@ -119,10 +120,10 @@ try
   // Prompt user to select splash screen file. Clicking "Cancel" returns null.
   var splash = File.openDialog("Select a splash screen PNG file that starts at 2048 pixels wide or high.", "*.png", false);
 
-  if (splash !== null) 
-  { 
+  if (splash !== null)
+  {
     var doc = open(splash, OpenDocumentType.PNG);
-    
+
     if (doc == null)
     {
       throw "Something is wrong with the file.  Make sure it's a valid PNG file.";
@@ -132,13 +133,13 @@ try
     var initialPrefs = app.preferences.rulerUnits; // will restore at end
     app.preferences.rulerUnits = Units.PIXELS;     // use pixels
 
-   
+
     if ((doc.width < 2048) && (doc.height < 2048))
     {
         throw "Image is too small!  Image must be at least 2048 pixels in one dimension.";
     }
-    
-    
+
+
     // Folder selection dialog
     var destFolder = Folder.selectDialog( "Choose an output folder");
 
@@ -154,8 +155,8 @@ try
     sfw.PNG8 = false; // use PNG-24
     sfw.transparency = true;
     doc.info = null;  // delete metadata
-       
-    var screens = [     
+
+    var screens = [
 	{"name": "splash.png", "width":320, "height":480},
 	{"name": "splash/portrait/ios/Default.png", "width":320, "height":480},
 	{"name": "splash/portrait/ios/Default@2x.png", "width":640, "height":960},
@@ -181,7 +182,7 @@ try
 	{"name": "splash/landscape/android/landscape-xxhdpi.png", "width":1600, "height":960},
 	{"name": "splash/landscape/android/landscape-xxhdpi.png", "width":1920, "height":1280},
     ];
-    
+
     function cropMe(w,h) {
 		var scale;
 		if (w/h > doc.width/doc.height) {
@@ -193,11 +194,11 @@ try
 		var newH = h*scale;
 		doc.crop([(doc.width-newW)/2,(doc.height-newH)/2,(doc.width-newW)/2+newW,(doc.height-newH)/2+newH], 0, w, h);
     }
-	
-	
-    
+
+
+
     var screen;
-    for (i = 0; i < screens.length; i++) 
+    for (i = 0; i < screens.length; i++)
     {
       screen = screens[i];
       if (!screen.name.match(/\.png$/i)) continue;
@@ -206,10 +207,10 @@ try
       doc.exportDocument(new File(destFolder + "/" + destFileName), ExportType.SAVEFORWEB, sfw);
       doc.activeHistoryState = startState; // undo resize
     }
-    
-    
+
+
     // WinPhone needs jpg
-    
+
     // Save icons in JPG using Save for Web.
     var sfw = new ExportOptionsSaveForWeb();
     sfw.format = SaveDocumentType.JPEG;
@@ -218,8 +219,8 @@ try
     sfw.optimized = false;
     sfw.quality = 80;
     doc.info = null;  // delete metadata
-	    
-    for (i = 0; i < screens.length; i++) 
+
+    for (i = 0; i < screens.length; i++)
     {
       screen = screens[i];
       if (!screen.name.match(/\.jpe?g$/i)) continue;
@@ -228,13 +229,13 @@ try
       doc.exportDocument(new File(destFolder + "/" + destFileName), ExportType.SAVEFORWEB, sfw);
       doc.activeHistoryState = startState; // undo resize
     }
-    
+
     // create a file called .pgomit in the screens directory so PhoneGap Build does not bundle the screens
     // as it already puts them in the right directory for each build
     // this is normally a text file but it does not matter - it is just the file name that is important
     doc.resizeImage(1, 1, // width, height
 			  null, ResampleMethod.BICUBICSHARPER);
-    doc.exportDocument(new File(destFolder + "/" + "splash/.pgbomit"), ExportType.SAVEFORWEB, sfw); 
+    doc.exportDocument(new File(destFolder + "/" + "splash/.pgbomit"), ExportType.SAVEFORWEB, sfw);
     doc.activeHistoryState = startState; // undo resize
 
 
@@ -251,6 +252,6 @@ finally
 {
     if (doc != null)
         doc.close(SaveOptions.DONOTSAVECHANGES);
-  
+
     app.preferences.rulerUnits = initialPrefs; // restore prefs
 }
